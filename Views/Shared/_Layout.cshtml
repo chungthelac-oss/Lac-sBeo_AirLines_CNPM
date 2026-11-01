@@ -1,0 +1,451 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Lạc Béo Airlines</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&display=swap">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/DatVeMayBay.styles.css" asp-append-version="true" />
+
+    <style>
+        /* ===== MÀU CHUNG ===== */
+        :root {
+            --xanh-dam: #0b4f9c;
+            --xanh: #0b5cad;
+            --xanh-nhat: #2f7fd1;
+            --vang: #ffc20e;
+            --vang-chu: #ffd24d;
+            --nen: #f4f7fb;
+            --chu: #1d2b3a;
+            --xam: #6b7787;
+            --vien: #e3e8ef;
+        }
+
+        /* ===== TRANG ===== */
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            background: var(--nen);
+            color: var(--chu);
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0 !important;
+        }
+
+        .noi-dung {
+            flex: 1 0 auto;
+        }
+
+        .btn-primary {
+            background: var(--xanh);
+            border-color: var(--xanh);
+        }
+
+            .btn-primary:hover {
+                background: var(--xanh-dam);
+                border-color: var(--xanh-dam);
+            }
+
+        .table {
+            background: #fff;
+        }
+
+        /* ===== HEADER ===== */
+        .header-chinh {
+            background: #fff;
+            border-bottom: 1px solid var(--vien);
+            box-shadow: 0 2px 10px rgba(11, 79, 156, 0.06);
+        }
+
+            .header-chinh .navbar {
+                padding-top: 14px;
+                padding-bottom: 14px;
+            }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none !important;
+            margin-right: 36px;
+            white-space: nowrap; /* tên dài không bị xuống dòng */
+        }
+
+        .logo-chu {
+            font-style: italic;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--xanh-dam);
+            letter-spacing: -0.5px;
+            line-height: 1;
+        }
+
+        .nav-chinh .nav-link {
+            color: var(--xanh) !important;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 0 18px !important;
+            line-height: 1.2;
+        }
+
+            .nav-chinh .nav-link:hover {
+                color: #f5a800 !important;
+            }
+
+        .nav-chinh .nav-item + .nav-item {
+            border-left: 2px solid var(--xanh);
+        }
+
+        .nav-phu .nav-link,
+        .nav-phu .btn-link {
+            color: #444 !important;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            padding: 0 14px !important;
+            text-decoration: none;
+            line-height: 1.2;
+        }
+
+            .nav-phu .nav-link:hover,
+            .nav-phu .btn-link:hover {
+                color: var(--xanh) !important;
+            }
+
+        .nav-phu .nav-item + .nav-item {
+            border-left: 1px solid #c9d1db;
+        }
+
+        /* Menu xổ xuống của Quản trị */
+        .nav-phu .dropdown-menu {
+            border: 1px solid var(--vien);
+            box-shadow: 0 8px 24px rgba(11, 79, 156, 0.12);
+            margin-top: 10px;
+            min-width: 220px;
+        }
+
+        .nav-phu .dropdown-item {
+            padding: 8px 16px;
+            font-size: 0.95rem;
+        }
+
+            .nav-phu .dropdown-item:hover {
+                background: #e8f1fc;
+                color: var(--xanh-dam);
+            }
+
+        @@media (max-width: 767.98px) {
+            .logo-chu {
+                font-size: 1.3rem;
+            }
+
+            .nav-chinh .nav-item + .nav-item,
+            .nav-phu .nav-item + .nav-item {
+                border-left: none;
+            }
+
+            .nav-chinh .nav-link,
+            .nav-phu .nav-link,
+            .nav-phu .btn-link {
+                padding: 8px 0 !important;
+            }
+        }
+
+        /* ===== TRANG CHỦ: KHUNG ĐẶT VÉ ===== */
+        .hero {
+            background: radial-gradient(ellipse at 15% 20%, rgba(255, 255, 255, 0.25), transparent 45%), radial-gradient(ellipse at 85% 90%, rgba(255, 214, 102, 0.28), transparent 40%), linear-gradient(165deg, #0a2557 0%, #13509f 55%, #5d9bd8 100%);
+            border-radius: 16px;
+            padding: 32px 20px 56px;
+            margin-bottom: 36px;
+        }
+
+        .hero-tieu-de {
+            color: var(--vang-chu);
+            font-weight: 800;
+            text-align: center;
+            font-size: clamp(1.6rem, 4vw, 2.6rem);
+            letter-spacing: 1px;
+            margin: 40px 0 6px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-phu {
+            color: #e6eefb;
+            text-align: center;
+            margin-bottom: 0;
+        }
+
+        .khung-dat-ve {
+            max-width: 1100px;
+            margin: 0 auto;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+        }
+
+        .tab-dat-ve {
+            display: flex;
+            flex-wrap: nowrap;
+            background: var(--xanh-nhat);
+        }
+
+            .tab-dat-ve .tab-nut {
+                flex: 1;
+                border: none;
+                background: transparent;
+                color: #fff;
+                font-weight: 700;
+                padding: 14px 10px;
+                border-right: 1px solid rgba(255, 255, 255, 0.25);
+            }
+
+                .tab-dat-ve .tab-nut:last-child {
+                    border-right: none;
+                }
+
+                .tab-dat-ve .tab-nut:hover {
+                    background: rgba(255, 255, 255, 0.08);
+                }
+
+                .tab-dat-ve .tab-nut.active {
+                    background: #0a5cb3;
+                    color: var(--vang-chu);
+                }
+
+        .than-dat-ve {
+            background: #0a5cb3;
+            padding: 24px 28px 30px;
+        }
+
+            .than-dat-ve h5 {
+                color: #fff;
+                font-size: 1.35rem;
+                font-weight: 600;
+                margin-bottom: 16px;
+            }
+
+            .than-dat-ve .form-select,
+            .than-dat-ve .form-control {
+                height: 52px;
+                border-radius: 0;
+                border: none;
+            }
+
+        .nut-vang {
+            background: var(--vang);
+            color: #0a3f80;
+            font-weight: 800;
+            height: 52px;
+            border: none;
+            border-radius: 0;
+            text-transform: uppercase;
+        }
+
+            .nut-vang:hover {
+                background: #ffb300;
+                color: #0a3f80;
+            }
+
+        /* ===== HÀNH TRÌNH PHỔ BIẾN ===== */
+        .the-hanh-trinh {
+            display: block;
+            background: #fff;
+            border: 1px solid var(--vien);
+            border-radius: 12px;
+            padding: 18px 20px;
+            text-decoration: none !important;
+            color: var(--chu);
+            transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+        }
+
+            .the-hanh-trinh:hover {
+                border-color: var(--xanh);
+                box-shadow: 0 6px 18px rgba(11, 92, 173, 0.14);
+                transform: translateY(-2px);
+                color: var(--chu);
+            }
+
+            .the-hanh-trinh .ma {
+                font-weight: 800;
+                font-size: 1.3rem;
+                color: var(--xanh-dam);
+            }
+
+            .the-hanh-trinh .thanh-pho {
+                color: var(--xam);
+                font-size: 0.9rem;
+            }
+
+        /* ===== FOOTER ===== */
+        .footer-chinh {
+            background: #0a2557;
+            color: #c9d6ea;
+            padding: 32px 0 20px;
+            margin-top: 48px;
+        }
+
+            .footer-chinh .logo-chu {
+                color: #fff;
+                font-size: 1.4rem;
+            }
+
+            .footer-chinh h6 {
+                color: #fff;
+                font-weight: 700;
+                margin-bottom: 12px;
+            }
+
+            .footer-chinh a {
+                color: #c9d6ea;
+                text-decoration: none;
+            }
+
+                .footer-chinh a:hover {
+                    color: var(--vang-chu);
+                }
+
+            .footer-chinh .ban-quyen {
+                border-top: 1px solid rgba(255, 255, 255, 0.12);
+                margin-top: 24px;
+                padding-top: 16px;
+                font-size: 0.85rem;
+            }
+
+        @@media (prefers-reduced-motion: reduce) {
+            .the-hanh-trinh {
+                transition: none;
+            }
+
+                .the-hanh-trinh:hover {
+                    transform: none;
+                }
+        }
+    </style>
+</head>
+<body>
+    <header class="header-chinh mb-4">
+        <nav class="navbar navbar-expand-md navbar-light">
+            <div class="container">
+                <!-- Logo -->
+                <a class="logo" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="logo-chu">Lạc Béo Airlines</span>
+                    <svg width="34" height="26" viewBox="0 0 34 26" aria-hidden="true">
+                        <path d="M0 13 L34 0 L25 26 Z" fill="#f5b800" />
+                    </svg>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuChinh"
+                        aria-controls="menuChinh" aria-expanded="false" aria-label="Mở menu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="menuChinh">
+                    <!-- Menu chính -->
+                    <ul class="navbar-nav nav-chinh me-auto align-items-md-center">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="ChuyenBay" asp-action="Index">Chuyến bay</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="DatCho" asp-action="TraCuu">Quản lý đặt chỗ</a>
+                        </li>
+                    </ul>
+
+                    <!-- Menu phụ bên phải -->
+                    <ul class="navbar-nav nav-phu align-items-md-center">
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button"
+                                   data-bs-toggle="dropdown" aria-expanded="false">⚙ Quản trị</a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="QuanLyChuyenBay" asp-action="Index">✈ Chuyến bay</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="QuanLyDatCho" asp-action="Index">📋 Duyệt vé</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="QuanLyHang" asp-action="Index">🏢 Hãng hàng không</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="QuanLySanBay" asp-action="Index">🛫 Sân bay</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="QuanLyThanhPho" asp-action="Index">🏙 Thành phố</a></li>
+                                </ul>
+                            </li>
+                        }
+
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="DatCho" asp-action="VeCuaToi">🎫 Vé của tôi</a>
+                            </li>
+                            <li class="nav-item">
+                                <span class="nav-link text-lowercase">👤 @User.Identity?.Name</span>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-area="" asp-controller="TaiKhoan" asp-action="DangXuat" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-link">Đăng xuất</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="TaiKhoan" asp-action="DangKy">Đăng ký</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="TaiKhoan" asp-action="DangNhap">👤 Đăng nhập</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container noi-dung">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer-chinh">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="logo-chu mb-2">Lạc Béo Airlines</div>
+                    <p class="mb-0">Đặt vé máy bay nội địa nhanh chóng, giá rõ ràng, tra cứu và huỷ vé trực tuyến.</p>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h6>Đặt vé</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li><a asp-area="" asp-controller="ChuyenBay" asp-action="Index">Tìm chuyến bay</a></li>
+                        <li><a asp-area="" asp-controller="DatCho" asp-action="TraCuu">Quản lý đặt chỗ</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h6>Tài khoản</h6>
+                    <ul class="list-unstyled mb-0">
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li><a asp-area="" asp-controller="DatCho" asp-action="VeCuaToi">Vé của tôi</a></li>
+                        }
+                        else
+                        {
+                            <li><a asp-area="" asp-controller="TaiKhoan" asp-action="DangNhap">Đăng nhập</a></li>
+                            <li><a asp-area="" asp-controller="TaiKhoan" asp-action="DangKy">Đăng ký</a></li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            <div class="ban-quyen">&copy; 2026 Lạc Béo Airlines · Đồ án Công nghệ phần mềm</div>
+        </div>`
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

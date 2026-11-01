@@ -1,0 +1,88 @@
+﻿@model DatVeMayBay.Models.ChuyenBay
+@{
+    ViewData["Title"] = "Chuyến " + Model.SoHieu;
+    var soVe = (int)ViewBag.SoVe;
+    var tg = Model.GioHaCanh - Model.GioCatCanh;
+    var dsChang = Model.ChangDungs.OrderBy(x => x.GioDen).ToList();
+    var doanhThu = soVe * Model.GiaVe;
+}
+
+<a asp-action="Index" class="a-quay-lai">← Danh sách chuyến bay</a>
+<div class="a-dau">
+    <div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h1>Chuyến bay @Model.SoHieu</h1>
+            <span class="a-nhan @(Model.MoDatVe ? "xanh" : "xam")">@(Model.MoDatVe ? "Đang mở bán" : "Đã đóng đặt vé")</span>
+        </div>
+        <p>@Model.HangHangKhong?.Ten · @Model.GioCatCanh.ToString("dd/MM/yyyy")</p>
+    </div>
+    <div class="a-nut-dau">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary">✏️ Sửa</a>
+        <a asp-action="ChangDungs" asp-route-id="@Model.Id" class="btn btn-outline-secondary">📍 Chặng dừng</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">🗑 Xoá</a>
+    </div>
+</div>
+
+<div class="a-so-lieu">
+    <div class="a-o-so"><div class="so">@soVe</div><div class="nhan">Vé đã bán</div></div>
+    <div class="a-o-so xanh-la"><div class="so">@Model.SoGheTrong</div><div class="nhan">Ghế trống</div></div>
+    <div class="a-o-so cam"><div class="so">@doanhThu.ToString("N0")</div><div class="nhan">Doanh thu tạm tính (₫)</div></div>
+    <div class="a-o-so vang"><div class="so">@dsChang.Count</div><div class="nhan">Chặng dừng</div></div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="a-the h-100">
+            <h5>Lịch trình</h5>
+            <div class="a-tuyen mb-4">
+                <div>
+                    <div class="ma">@Model.DiemDi</div>
+                    <div class="gio">@Model.GioCatCanh.ToString("HH:mm")</div>
+                </div>
+                <div class="giua">
+                    @((int)tg.TotalHours) giờ @tg.Minutes.ToString("00") phút
+                    <div class="vach"><span aria-hidden="true">✈</span></div>
+                    @(dsChang.Count == 0 ? "Bay thẳng" : dsChang.Count + " điểm dừng")
+                </div>
+                <div class="text-end">
+                    <div class="ma">@Model.DiemDen</div>
+                    <div class="gio">@Model.GioHaCanh.ToString("HH:mm")</div>
+                </div>
+            </div>
+
+            <div class="a-luoi">
+                <div><div class="nhan">Hãng</div><div class="gia-tri">@Model.HangHangKhong?.Ten</div></div>
+                <div><div class="nhan">Cất cánh</div><div class="gia-tri">@Model.GioCatCanh.ToString("HH:mm dd/MM/yyyy")</div></div>
+                <div><div class="nhan">Hạ cánh</div><div class="gia-tri">@Model.GioHaCanh.ToString("HH:mm dd/MM/yyyy")</div></div>
+                <div><div class="nhan">Giá vé</div><div class="gia-tri">@Model.GiaVe.ToString("N0") ₫</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="a-the h-100">
+            <div class="a-the-tieu-de">
+                <h5>Chặng dừng</h5>
+                <a asp-action="ChangDungs" asp-route-id="@Model.Id" class="small fw-semibold text-decoration-none">Quản lý →</a>
+            </div>
+
+            @if (dsChang.Count == 0)
+            {
+                <p class="text-success fw-semibold mb-0">✈ Bay thẳng, không có chặng dừng</p>
+            }
+            else
+            {
+                @foreach (var cd in dsChang)
+                {
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <div>
+                            <span class="a-ma">@cd.SanBayMa</span>
+                            <span class="ms-1 fw-semibold">@cd.SanBay?.Ten</span>
+                        </div>
+                        <span class="text-muted small">@cd.GioDen.ToString("HH:mm") → @cd.GioDi.ToString("HH:mm")</span>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

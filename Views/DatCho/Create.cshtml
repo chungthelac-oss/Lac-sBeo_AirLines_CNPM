@@ -1,0 +1,515 @@
+﻿@model DatVeMayBay.Models.DatVeViewModel
+@{
+    ViewData["Title"] = "Đặt vé";
+    var cb = (DatVeMayBay.Models.ChuyenBay)ViewBag.ChuyenBay;
+    var toiDa = Math.Min(9, cb.SoGheTrong);
+    var soKhach = Model.HanhKhachs.Count;
+    var tongTien = cb.GiaVe * soKhach;
+    var tg = cb.GioHaCanh - cb.GioCatCanh;
+    var dsDung = cb.ChangDungs.OrderBy(x => x.GioDen).ToList();
+    var thu = new[] { "CN", "T2", "T3", "T4", "T5", "T6", "T7" };
+}
+
+@functions {
+    string MauHang(string? ma) => ma switch
+    {
+        "CD" => "#0b5cad",
+        "SV" => "#d6336c",
+        "MT" => "#0ca678",
+        _ => "#6b7787"
+    };
+}
+
+<style>
+    /* ===== THANH TIẾN TRÌNH ===== */
+    .tien-trinh {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+    }
+
+    .buoc {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: var(--xam);
+    }
+
+        .buoc .so {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: #e3e8ef;
+            color: var(--xam);
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .buoc.xong .so {
+            background: #0ca678;
+            color: #fff;
+        }
+
+        .buoc.xong {
+            color: #0ca678;
+        }
+
+        .buoc.dang .so {
+            background: var(--xanh);
+            color: #fff;
+            box-shadow: 0 0 0 4px rgba(11, 92, 173, 0.18);
+        }
+
+        .buoc.dang {
+            color: var(--chu);
+        }
+
+    .noi-buoc {
+        flex: 1;
+        min-width: 24px;
+        max-width: 90px;
+        height: 2px;
+        background: #d3dbe5;
+    }
+
+        .noi-buoc.xong {
+            background: #0ca678;
+        }
+
+    /* ===== KHỐI CHUNG ===== */
+    .khoi {
+        background: #fff;
+        border: 1px solid var(--vien);
+        border-radius: 16px;
+        padding: 22px 24px;
+        margin-bottom: 18px;
+    }
+
+    .khoi-tieu-de {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+    }
+
+        .khoi-tieu-de h5 {
+            font-weight: 800;
+            margin: 0;
+        }
+
+    .khoi .form-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #4a5768;
+        margin-bottom: 4px;
+    }
+
+    .khoi .form-control {
+        height: 46px;
+        border-radius: 10px;
+    }
+
+        .khoi .form-control:focus {
+            border-color: var(--xanh);
+            box-shadow: 0 0 0 3px rgba(11, 92, 173, 0.15);
+        }
+
+    /* ===== BỘ ĐẾM HÀNH KHÁCH ===== */
+    .bo-dem {
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid var(--vien);
+        border-radius: 999px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .nut-dem {
+        width: 42px;
+        height: 40px;
+        display: grid;
+        place-items: center;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--xanh);
+        text-decoration: none;
+    }
+
+        .nut-dem:hover {
+            background: #e8f1fc;
+            color: var(--xanh-dam);
+        }
+
+        .nut-dem.tat {
+            color: #c3cbd6;
+            pointer-events: none;
+        }
+
+    .bo-dem .so-khach {
+        min-width: 42px;
+        text-align: center;
+        font-weight: 800;
+        font-size: 1.1rem;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* ===== THẺ HÀNH KHÁCH ===== */
+    .the-khach {
+        border-left: 4px solid var(--xanh);
+    }
+
+    .so-thu-tu {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #e8f1fc;
+        color: var(--xanh-dam);
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        flex: none;
+    }
+
+    /* ===== THẺ TÓM TẮT (HÌNH VÉ) ===== */
+    .tom-tat {
+        position: sticky;
+        top: 20px;
+    }
+
+    .ve {
+        background: #fff;
+        border: 1px solid var(--vien);
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 12px 32px rgba(10, 37, 87, 0.12);
+    }
+
+    .ve-dau {
+        background: linear-gradient(150deg, #0a2557 0%, #13509f 100%);
+        color: #fff;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+        .ve-dau .logo-hang {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            flex: none;
+        }
+
+        .ve-dau .phu {
+            color: #c9d6ea;
+            font-size: 0.85rem;
+        }
+
+    .ve-than {
+        padding: 18px 20px;
+    }
+
+    .tuyen {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 10px;
+        align-items: center;
+    }
+
+        .tuyen .gio {
+            font-size: 1.5rem;
+            font-weight: 800;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .tuyen .ma {
+            font-weight: 700;
+            color: var(--xanh-dam);
+        }
+
+        .tuyen .giua {
+            text-align: center;
+            font-size: 0.78rem;
+            color: var(--xam);
+        }
+
+        .tuyen .vach {
+            position: relative;
+            height: 2px;
+            margin: 6px 12px;
+            background: repeating-linear-gradient(90deg, #b8c4d2 0 6px, transparent 6px 10px);
+        }
+
+            .tuyen .vach span {
+                position: absolute;
+                right: -12px;
+                top: 50%;
+                transform: translateY(-52%);
+                background: #fff;
+                padding-left: 3px;
+                color: var(--xanh);
+            }
+
+    .dung-nho {
+        font-size: 0.8rem;
+        color: #8a5a00;
+        margin-top: 10px;
+    }
+
+    /* Đường cắt răng cưa giữa vé */
+    .vet-cat {
+        position: relative;
+        border-top: 2px dashed #d3dbe5;
+        margin: 4px 0;
+    }
+
+        .vet-cat::before,
+        .vet-cat::after {
+            content: "";
+            position: absolute;
+            top: -12px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--nen);
+            border: 1px solid var(--vien);
+        }
+
+        .vet-cat::before {
+            left: -12px;
+        }
+
+        .vet-cat::after {
+            right: -12px;
+        }
+
+    .dong-tien {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.92rem;
+        margin-bottom: 6px;
+    }
+
+        .dong-tien span:last-child {
+            font-variant-numeric: tabular-nums;
+        }
+
+    .tong {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin: 12px 0 16px;
+    }
+
+        .tong .so-tien {
+            color: #e8590c;
+            font-size: 1.7rem;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+        }
+
+    .nut-dat {
+        background: var(--vang);
+        color: #0a3f80;
+        font-weight: 800;
+        text-transform: uppercase;
+        border: none;
+        border-radius: 12px;
+        height: 52px;
+        letter-spacing: 0.4px;
+    }
+
+        .nut-dat:hover {
+            background: #ffb300;
+            color: #0a3f80;
+        }
+
+    .ghi-chu {
+        font-size: 0.8rem;
+        color: var(--xam);
+        margin-top: 12px;
+        display: grid;
+        gap: 4px;
+    }
+
+    @@media (max-width: 991.98px) {
+        .tom-tat {
+            position: static;
+        }
+    }
+</style>
+
+<!-- ===== THANH TIẾN TRÌNH ===== -->
+<div class="tien-trinh" aria-label="Các bước đặt vé">
+    <div class="buoc xong"><span class="so">✓</span> Chọn chuyến bay</div>
+    <div class="noi-buoc xong"></div>
+    <div class="buoc dang" aria-current="step"><span class="so">2</span> Thông tin hành khách</div>
+    <div class="noi-buoc"></div>
+    <div class="buoc"><span class="so">3</span> Hoàn tất</div>
+</div>
+
+<form asp-action="Create" method="post">
+    <input type="hidden" asp-for="ChuyenBayId" />
+
+    <div class="row g-4">
+        <!-- ===== CỘT TRÁI: NHẬP THÔNG TIN ===== -->
+        <div class="col-lg-8">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 mb-3" role="alert"></div>
+
+            <!-- Số hành khách -->
+            <div class="khoi">
+                <div class="khoi-tieu-de mb-0">
+                    <div>
+                        <h5>Số hành khách</h5>
+                        <small class="text-muted">Chọn số người trước khi nhập thông tin. Còn @cb.SoGheTrong ghế trống.</small>
+                    </div>
+                    <div class="bo-dem">
+                        <a class="nut-dem @(soKhach <= 1 ? "tat" : "")"
+                           asp-action="Create" asp-route-chuyenBayId="@cb.Id" asp-route-soKhach="@(soKhach - 1)"
+                           aria-label="Bớt 1 hành khách" aria-disabled="@(soKhach <= 1 ? "true" : "false")">−</a>
+                        <span class="so-khach" aria-live="polite">@soKhach</span>
+                        <a class="nut-dem @(soKhach >= toiDa ? "tat" : "")"
+                           asp-action="Create" asp-route-chuyenBayId="@cb.Id" asp-route-soKhach="@(soKhach + 1)"
+                           aria-label="Thêm 1 hành khách" aria-disabled="@(soKhach >= toiDa ? "true" : "false")">+</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Từng hành khách -->
+            @for (int i = 0; i < soKhach; i++)
+            {
+                <div class="khoi the-khach">
+                    <div class="khoi-tieu-de">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="so-thu-tu">@(i + 1)</span>
+                            <h5>Hành khách @(i + 1)</h5>
+                        </div>
+                        <small class="text-muted">Nhập đúng như trên CCCD / hộ chiếu</small>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="HanhKhachs[i].HoTen" class="form-label"></label>
+                            <input asp-for="HanhKhachs[i].HoTen" class="form-control" placeholder="Nguyễn Văn An" autocomplete="off" />
+                            <span asp-validation-for="HanhKhachs[i].HoTen" class="text-danger small"></span>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label asp-for="HanhKhachs[i].NgaySinh" class="form-label"></label>
+                            <input asp-for="HanhKhachs[i].NgaySinh" class="form-control" />
+                            <span asp-validation-for="HanhKhachs[i].NgaySinh" class="text-danger small"></span>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <label asp-for="HanhKhachs[i].SoGiayTo" class="form-label"></label>
+                            <input asp-for="HanhKhachs[i].SoGiayTo" class="form-control" placeholder="Không bắt buộc" />
+                            <span asp-validation-for="HanhKhachs[i].SoGiayTo" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Liên hệ -->
+            <div class="khoi">
+                <div class="khoi-tieu-de">
+                    <h5>Thông tin liên hệ</h5>
+                    <small class="text-muted">Mã đặt chỗ và thông báo thay đổi lịch bay gửi về đây</small>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="SoDienThoai" class="form-label"></label>
+                        <input asp-for="SoDienThoai" class="form-control" placeholder="0901234567" inputmode="tel" />
+                        <span asp-validation-for="SoDienThoai" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== CỘT PHẢI: TÓM TẮT HÌNH VÉ ===== -->
+        <div class="col-lg-4">
+            <div class="tom-tat">
+                <div class="ve">
+                    <div class="ve-dau">
+                        <div class="logo-hang" style="background: @MauHang(cb.HangHangKhong?.Ma)">@cb.HangHangKhong?.Ma</div>
+                        <div>
+                            <div class="fw-bold">@cb.HangHangKhong?.Ten</div>
+                            <div class="phu">@cb.SoHieu · @thu[(int)cb.GioCatCanh.DayOfWeek], @cb.GioCatCanh.ToString("dd/MM/yyyy")</div>
+                        </div>
+                    </div>
+
+                    <div class="ve-than">
+                        <div class="tuyen">
+                            <div>
+                                <div class="gio">@cb.GioCatCanh.ToString("HH:mm")</div>
+                                <div class="ma">@cb.DiemDi</div>
+                            </div>
+                            <div class="giua">
+                                @((int)tg.TotalHours)g @tg.Minutes.ToString("00")p
+                                <div class="vach"><span aria-hidden="true">✈</span></div>
+                                @(dsDung.Count == 0 ? "Bay thẳng" : dsDung.Count + " điểm dừng")
+                            </div>
+                            <div class="text-end">
+                                <div class="gio">@cb.GioHaCanh.ToString("HH:mm")</div>
+                                <div class="ma">@cb.DiemDen</div>
+                            </div>
+                        </div>
+
+                        @foreach (var cd in dsDung)
+                        {
+                            <div class="dung-nho">
+                                ⏸ Dừng tại <b>@cd.SanBay?.Ten (@cd.SanBayMa)</b>: @cd.GioDen.ToString("HH:mm") → @cd.GioDi.ToString("HH:mm")
+                            </div>
+                        }
+                    </div>
+
+                    <div class="vet-cat"></div>
+
+                    <div class="ve-than">
+                        <div class="dong-tien">
+                            <span>Giá vé × @soKhach khách</span>
+                            <span>@tongTien.ToString("N0") ₫</span>
+                        </div>
+                        <div class="dong-tien text-muted">
+                            <span>Thuế, phí sân bay</span>
+                            <span>Đã gồm</span>
+                        </div>
+
+                        <div class="tong">
+                            <span class="fw-bold">Tổng cộng</span>
+                            <span class="so-tien">@tongTien.ToString("N0") ₫</span>
+                        </div>
+
+                        <button type="submit" class="btn nut-dat w-100">Xác nhận đặt vé</button>
+
+                        <div class="ghi-chu">
+                            <span>✓ Mỗi hành khách nhận một mã đặt chỗ riêng</span>
+                            <span>✓ Vé ở trạng thái <b>Chờ xác nhận</b> cho đến khi được duyệt</span>
+                            <span>✓ Huỷ miễn phí trước giờ bay 24 giờ</span>
+                        </div>
+
+                        <a asp-controller="ChuyenBay" asp-action="Index" class="btn btn-link w-100 mt-2">← Chọn chuyến khác</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,86 @@
+﻿@model IEnumerable<DatVeMayBay.Models.ChuyenBay>
+@{
+    ViewData["Title"] = "Quản lý chuyến bay";
+    var ds = Model.ToList();
+    var soMo = ds.Count(c => c.MoDatVe);
+    var sapBay = ds.Count(c => c.GioCatCanh > DateTime.Now);
+}
+
+<div class="a-dau">
+    <div>
+        <h1>Chuyến bay</h1>
+        <p>@ds.Count chuyến · @sapBay sắp khởi hành · @soMo đang mở bán vé</p>
+    </div>
+    <div class="a-nut-dau">
+        <a asp-action="Create" class="btn btn-vang">+ Thêm chuyến bay</a>
+    </div>
+</div>
+
+@if (ds.Count == 0)
+{
+    <div class="a-the a-trong">
+        <div class="ic" aria-hidden="true">✈</div>
+        <p class="mb-3">Chưa có chuyến bay nào.</p>
+        <a asp-action="Create" class="btn btn-vang">+ Thêm chuyến bay đầu tiên</a>
+    </div>
+}
+else
+{
+    <div class="a-the khong-dem">
+        <div class="table-responsive">
+            <table class="a-bang">
+                <thead>
+                    <tr>
+                        <th>Chuyến bay</th>
+                        <th>Hành trình</th>
+                        <th>Cất cánh</th>
+                        <th class="text-end">Giá vé</th>
+                        <th class="text-center">Ghế trống</th>
+                        <th>Bán vé</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var cb in ds)
+                    {
+                        var daBay = cb.GioCatCanh <= DateTime.Now;
+                        <tr class="@(daBay ? "mo" : "")">
+                            <td>
+                                <b>@cb.SoHieu</b>
+                                <span class="a-phu">@cb.HangHangKhong?.Ten</span>
+                            </td>
+                            <td>
+                                <b>@cb.DiemDi</b> → <b>@cb.DiemDen</b>
+                                <span class="a-phu">@(cb.ChangDungs.Count == 0 ? "Bay thẳng" : cb.ChangDungs.Count + " điểm dừng")</span>
+                            </td>
+                            <td>
+                                @cb.GioCatCanh.ToString("HH:mm")
+                                <span class="a-phu">@cb.GioCatCanh.ToString("dd/MM/yyyy")@(daBay ? " · Đã bay" : "")</span>
+                            </td>
+                            <td class="text-end fw-bold">@cb.GiaVe.ToString("N0") ₫</td>
+                            <td class="text-center">
+                                <span class="@(cb.SoGheTrong <= 5 ? "text-danger fw-bold" : "")">@cb.SoGheTrong</span>
+                            </td>
+                            <td>
+                                <form asp-action="BatTatDatVe" asp-route-id="@cb.Id" method="post" class="m-0">
+                                    <button type="submit" class="a-cong-tac @(cb.MoDatVe ? "bat" : "")"
+                                            title="@(cb.MoDatVe ? "Bấm để đóng đặt vé" : "Bấm để mở đặt vé")">
+                                        @(cb.MoDatVe ? "Đang mở" : "Đã đóng")
+                                    </button>
+                                </form>
+                            </td>
+                            <td>
+                                <div class="nhom-nut">
+                                    <a asp-action="ChangDungs" asp-route-id="@cb.Id" class="nut-nho" title="Chặng dừng" aria-label="Chặng dừng">📍</a>
+                                    <a asp-action="Details" asp-route-id="@cb.Id" class="nut-nho" title="Xem chi tiết" aria-label="Xem chi tiết">👁</a>
+                                    <a asp-action="Edit" asp-route-id="@cb.Id" class="nut-nho" title="Sửa" aria-label="Sửa">✏️</a>
+                                    <a asp-action="Delete" asp-route-id="@cb.Id" class="nut-nho xoa" title="Xoá" aria-label="Xoá">🗑</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

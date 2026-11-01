@@ -1,0 +1,207 @@
+﻿@{
+    ViewData["Title"] = "Trang chủ";
+    var sanBays = (List<DatVeMayBay.Models.SanBay>)ViewBag.SanBays;
+    var homNay = DateTime.Today.ToString("yyyy-MM-dd");
+
+    // Các tuyến hiện trên trang chủ: (mã đi, mã đến, tên đi, tên đến)
+    var tuyenPhoBien = new[]
+    {
+        ("SGN", "HAN", "TP. Hồ Chí Minh", "Hà Nội"),
+        ("HAN", "SGN", "Hà Nội", "TP. Hồ Chí Minh"),
+        ("SGN", "DAD", "TP. Hồ Chí Minh", "Đà Nẵng"),
+        ("HAN", "PQC", "Hà Nội", "Phú Quốc")
+    };
+}
+
+<style>
+    /* Riêng cho trang chủ */
+    .tieu-de-muc {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+        .tieu-de-muc h4 {
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .tieu-de-muc a {
+            color: var(--xanh);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+            .tieu-de-muc a:hover {
+                text-decoration: underline;
+            }
+
+    .the-hanh-trinh .icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #e8f1fc;
+        color: var(--xanh);
+        display: grid;
+        place-items: center;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+
+    .the-hanh-trinh .xem {
+        display: block;
+        margin-top: 10px;
+        color: var(--xanh);
+        font-weight: 600;
+        font-size: 0.88rem;
+    }
+
+    .tinh-nang {
+        background: #fff;
+        border: 1px solid var(--vien);
+        border-radius: 12px;
+        padding: 22px;
+        height: 100%;
+    }
+
+        .tinh-nang .so {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--xanh-dam);
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .tinh-nang h6 {
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .tinh-nang p {
+            color: var(--xam);
+            margin: 0;
+            font-size: 0.92rem;
+        }
+</style>
+
+<!-- ===== KHUNG ĐẶT VÉ ===== -->
+<section class="hero">
+    <div class="khung-dat-ve">
+        <div class="tab-dat-ve nav" role="tablist">
+            <button class="tab-nut active" data-bs-toggle="tab" data-bs-target="#tab-datve"
+                    type="button" role="tab" aria-selected="true">
+                ✈ Đặt vé
+            </button>
+            <button class="tab-nut" data-bs-toggle="tab" data-bs-target="#tab-tracuu"
+                    type="button" role="tab" aria-selected="false">
+                🎫 Quản lý đặt chỗ
+            </button>
+        </div>
+
+        <div class="tab-content">
+            <!-- Tab 1: Đặt vé -->
+            <div class="tab-pane fade show active than-dat-ve" id="tab-datve" role="tabpanel">
+                <h5>Xin chào, bạn muốn đi đâu?</h5>
+                <form asp-area="" asp-controller="ChuyenBay" asp-action="Index" method="get" class="row g-2">
+                    <div class="col-md-3">
+                        <select name="diemDi" class="form-select" aria-label="Điểm đi">
+                            <option value="">📍 Điểm đi</option>
+                            @foreach (var sb in sanBays)
+                            {
+                                <option value="@sb.Ma">@sb.ThanhPho (@sb.Ma)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="diemDen" class="form-select" aria-label="Điểm đến">
+                            <option value="">📍 Điểm đến</option>
+                            @foreach (var sb in sanBays)
+                            {
+                                <option value="@sb.Ma">@sb.ThanhPho (@sb.Ma)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="date" name="ngayDi" class="form-control" min="@homNay" aria-label="Ngày đi" />
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn nut-vang w-100">Tìm chuyến bay</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tab 2: Quản lý đặt chỗ -->
+            <div class="tab-pane fade than-dat-ve" id="tab-tracuu" role="tabpanel">
+                <h5>Tra cứu, huỷ vé bằng mã đặt chỗ</h5>
+                <form asp-area="" asp-controller="DatCho" asp-action="TraCuu" method="post" class="row g-2">
+                    <div class="col-md-3">
+                        <input name="maDatCho" class="form-control text-uppercase" maxlength="6"
+                               placeholder="Mã đặt chỗ (VD: 7NAD4S)" required />
+                    </div>
+                    <div class="col-md-6">
+                        <input name="email" type="email" class="form-control"
+                               placeholder="Email đã dùng khi đặt vé" required />
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn nut-vang w-100">Tra cứu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <h1 class="hero-tieu-de">BAY KHẮP VIỆT NAM</h1>
+    <p class="hero-phu">Giá vé rõ ràng, đã gồm thuế phí · Đặt nhanh trong 2 phút</p>
+</section>
+
+<!-- ===== HÀNH TRÌNH PHỔ BIẾN ===== -->
+<section class="mb-5">
+    <div class="tieu-de-muc">
+        <h4>Hành trình phổ biến</h4>
+        <a asp-area="" asp-controller="ChuyenBay" asp-action="Index">Xem tất cả chuyến bay →</a>
+    </div>
+
+    <div class="row g-3">
+        @foreach (var (di, den, tenDi, tenDen) in tuyenPhoBien)
+        {
+            <div class="col-6 col-md-3">
+                <a class="the-hanh-trinh" asp-area="" asp-controller="ChuyenBay" asp-action="Index"
+                   asp-route-diemDi="@di" asp-route-diemDen="@den">
+                    <div class="icon" aria-hidden="true">✈</div>
+                    <div class="ma">@di → @den</div>
+                    <div class="thanh-pho">@tenDi → @tenDen</div>
+                    <span class="xem">Xem chuyến →</span>
+                </a>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- ===== ĐIỂM NỔI BẬT ===== -->
+<section class="mb-4">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="tinh-nang">
+                <div class="so">@sanBays.Count</div>
+                <h6>Sân bay nội địa</h6>
+                <p>Kết nối các thành phố lớn từ Bắc vào Nam.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="tinh-nang">
+                <div class="so">0 ₫</div>
+                <h6>Phí ẩn</h6>
+                <p>Giá hiển thị đã gồm thuế, phí sân bay.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="tinh-nang">
+                <div class="so">24/7</div>
+                <h6>Tra cứu và huỷ vé online</h6>
+                <p>Chỉ cần mã đặt chỗ và email, không cần gọi tổng đài.</p>
+            </div>
+        </div>
+    </div>
+</section>

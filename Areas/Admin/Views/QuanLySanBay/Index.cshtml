@@ -1,0 +1,66 @@
+﻿@model List<DatVeMayBay.Models.SanBay>
+@{
+    ViewData["Title"] = "Sân bay";
+}
+
+<style>
+    .the-san-bay {
+        transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+        .the-san-bay:hover {
+            border-color: var(--xanh);
+            box-shadow: 0 6px 18px rgba(11, 92, 173, 0.1);
+        }
+
+        .the-san-bay .ma-sb {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: var(--xanh-dam);
+            letter-spacing: 2px;
+            line-height: 1;
+        }
+</style>
+
+<div class="a-dau">
+    <div>
+        <h1>Sân bay</h1>
+        <p>@Model.Count sân bay · mỗi sân bay phục vụ một hoặc nhiều thành phố</p>
+    </div>
+    <div class="a-nut-dau">
+        <a asp-controller="QuanLyThanhPho" asp-action="Index" class="btn btn-outline-secondary">🏙 Thành phố</a>
+        <a asp-action="Create" class="btn btn-vang">+ Thêm sân bay</a>
+    </div>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-xxl-3 g-3">
+    @foreach (var sb in Model)
+    {
+        var dsTp = sb.SanBayThanhPhos.OrderBy(x => x.ThanhPhoId).ToList();
+        <div class="col">
+            <div class="a-the the-san-bay h-100">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                    <div>
+                        <div class="ma-sb">@sb.Ma</div>
+                        <div class="fw-semibold mt-1">@sb.Ten</div>
+                    </div>
+                    <div class="nhom-nut">
+                        <a asp-action="Edit" asp-route-id="@sb.Ma" class="nut-nho" title="Sửa" aria-label="Sửa">✏️</a>
+                        <form asp-action="Delete" asp-route-id="@sb.Ma" method="post"
+                              onsubmit="return confirm('Xoá sân bay @sb.Ma?');">
+                            <button type="submit" class="nut-nho xoa" title="Xoá" aria-label="Xoá">🗑</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="a-phu mt-3 mb-2">Phục vụ @dsTp.Count thành phố</div>
+                <div class="d-flex flex-wrap gap-1">
+                    @foreach (var x in dsTp)
+                    {
+                        <span class="a-nhan duong">@x.ThanhPho?.Ten</span>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,75 @@
+﻿@model DatVeMayBay.Models.ChuyenBay
+
+<div class="a-form">
+    <div class="a-phan">Hãng và số hiệu</div>
+    <div class="row g-3">
+        <div class="col-md-7">
+            <label asp-for="HangHangKhongId" class="form-label"></label>
+            <select asp-for="HangHangKhongId" class="form-select" asp-items="ViewBag.HangList">
+                <option value="0">-- Chọn hãng --</option>
+            </select>
+            <span asp-validation-for="HangHangKhongId" class="text-danger small"></span>
+        </div>
+        <div class="col-md-5">
+            <label asp-for="SoHieu" class="form-label"></label>
+            <input asp-for="SoHieu" class="form-control" placeholder="VD: CD 501" />
+            <span asp-validation-for="SoHieu" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="a-phan">Hành trình</div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="DiemDi" class="form-label"></label>
+            <select asp-for="DiemDi" class="form-select" asp-items="ViewBag.SanBayList">
+                <option value="">-- Chọn sân bay đi --</option>
+            </select>
+            <span asp-validation-for="DiemDi" class="text-danger small"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="DiemDen" class="form-label"></label>
+            <select asp-for="DiemDen" class="form-select" asp-items="ViewBag.SanBayList">
+                <option value="">-- Chọn sân bay đến --</option>
+            </select>
+            <span asp-validation-for="DiemDen" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="a-phan">Thời gian</div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="GioCatCanh" class="form-label"></label>
+            <input asp-for="GioCatCanh" class="form-control" />
+            <span asp-validation-for="GioCatCanh" class="text-danger small"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="GioHaCanh" class="form-label"></label>
+            <input asp-for="GioHaCanh" class="form-control" />
+            <span asp-validation-for="GioHaCanh" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="a-phan">Giá vé và chỗ ngồi</div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="GiaVe" class="form-label"></label>
+            <div class="input-group">
+                <input asp-for="GiaVe" class="form-control" placeholder="VD: 1290000" />
+                <span class="input-group-text">₫</span>
+            </div>
+            <span asp-validation-for="GiaVe" class="text-danger small"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="SoGheTrong" class="form-label"></label>
+            <input asp-for="SoGheTrong" class="form-control" />
+            <span asp-validation-for="SoGheTrong" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="a-phan">Bán vé</div>
+    <div class="form-check form-switch">
+        <input asp-for="MoDatVe" class="form-check-input" role="switch" />
+        <label asp-for="MoDatVe" class="form-check-label fw-semibold"></label>
+        <div class="form-text">Tắt nếu hãng tạm ngừng nhận đặt vé cho chuyến này.</div>
+    </div>
+</div>

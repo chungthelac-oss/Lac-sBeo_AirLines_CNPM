@@ -1,0 +1,41 @@
+﻿@model DatVeMayBay.Models.ChuyenBay
+@{
+    ViewData["Title"] = "Thêm chuyến bay";
+}
+
+<a asp-action="Index" class="a-quay-lai">← Danh sách chuyến bay</a>
+<div class="a-dau">
+    <div>
+        <h1>Thêm chuyến bay</h1>
+        <p>Điền thông tin chuyến bay mới. Chặng dừng thêm sau khi lưu.</p>
+    </div>
+</div>
+
+<form asp-action="Create" method="post">
+    <div class="row g-4">
+        <div class="col-xl-8">
+            <div class="a-the">
+                <div asp-validation-summary="ModelOnly" class="a-form-loi"></div>
+                <partial name="_FormChuyenBay" />
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="a-the a-dinh">
+                <h5>Lưu chuyến bay</h5>
+                <button type="submit" class="btn btn-vang w-100">Lưu chuyến bay</button>
+                <a asp-action="Index" class="btn btn-light w-100 mt-2">Huỷ</a>
+                <hr />
+                <ul class="a-meo">
+                    <li>Giờ hạ cánh phải sau giờ cất cánh</li>
+                    <li>Điểm đến phải khác điểm đi</li>
+                    <li>Lưu xong, bấm 📍 để thêm chặng dừng</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

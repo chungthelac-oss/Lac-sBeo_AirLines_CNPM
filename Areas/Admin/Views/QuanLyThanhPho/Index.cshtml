@@ -1,0 +1,87 @@
+﻿@model DatVeMayBay.Models.ThanhPho
+@{
+    ViewData["Title"] = "Thành phố";
+    var ds = (List<DatVeMayBay.Models.ThanhPho>)ViewBag.DanhSach;
+}
+
+<div class="a-dau">
+    <div>
+        <h1>Thành phố</h1>
+        <p>@ds.Count thành phố · @ds.Count(t => t.SanBayThanhPhos.Count == 0) chưa có sân bay phục vụ</p>
+    </div>
+    <div class="a-nut-dau">
+        <a asp-controller="QuanLySanBay" asp-action="Index" class="btn btn-outline-secondary">🛫 Sân bay</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="a-the khong-dem">
+            <div class="table-responsive">
+                <table class="a-bang">
+                    <thead>
+                        <tr>
+                            <th>Thành phố</th>
+                            <th>Sân bay phục vụ</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in ds)
+                        {
+                            var coSanBay = t.SanBayThanhPhos.Count > 0;
+                            <tr>
+                                <td class="fw-bold">@t.Ten</td>
+                                <td>
+                                    @if (!coSanBay)
+                                    {
+                                        <span class="a-nhan xam">Chưa có</span>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var x in t.SanBayThanhPhos)
+                                        {
+                                            <span class="a-chip">@x.SanBayMa</span>
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    <div class="nhom-nut">
+                                        <a asp-action="Edit" asp-route-id="@t.Id" class="nut-nho" title="Sửa" aria-label="Sửa">✏️</a>
+                                        <form asp-action="Delete" asp-route-id="@t.Id" method="post"
+                                              onsubmit="return confirm('Xoá thành phố @t.Ten?');">
+                                            <button type="submit" class="nut-nho xoa" disabled="@coSanBay"
+                                                    title="@(coSanBay ? "Đang có sân bay phục vụ, không xoá được" : "Xoá")" aria-label="Xoá">
+                                                🗑
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <form asp-action="Create" method="post" class="a-the a-form a-dinh">
+            <h5>Thêm thành phố</h5>
+            <div asp-validation-summary="ModelOnly" class="a-form-loi"></div>
+
+            <div class="mb-3">
+                <label asp-for="Ten" class="form-label"></label>
+                <input asp-for="Ten" class="form-control" placeholder="VD: Vũng Tàu" />
+                <span asp-validation-for="Ten" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-vang w-100">+ Thêm thành phố</button>
+            <p class="small text-muted mt-3 mb-0">Thêm xong, vào <b>Sân bay</b> để chọn sân bay phục vụ thành phố này.</p>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

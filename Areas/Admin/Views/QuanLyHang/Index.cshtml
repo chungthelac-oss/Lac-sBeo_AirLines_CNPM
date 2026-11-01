@@ -1,0 +1,95 @@
+﻿@model DatVeMayBay.Models.HangHangKhong
+@{
+    ViewData["Title"] = "Hãng hàng không";
+    var ds = (List<DatVeMayBay.Models.HangHangKhong>)ViewBag.DanhSach;
+}
+
+@functions {
+    string MauHang(string? ma) => ma switch
+    {
+        "CD" => "#0b5cad",
+        "SV" => "#d6336c",
+        "MT" => "#0ca678",
+        _ => "#6b7787"
+    };
+}
+
+<div class="a-dau">
+    <div>
+        <h1>Hãng hàng không</h1>
+        <p>@ds.Count hãng · @ds.Sum(h => h.ChuyenBays.Count) chuyến bay</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="a-the khong-dem">
+            <div class="table-responsive">
+                <table class="a-bang">
+                    <thead>
+                        <tr>
+                            <th>Hãng</th>
+                            <th class="text-center">Số chuyến bay</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var h in ds)
+                        {
+                            var conChuyen = h.ChuyenBays.Count > 0;
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="logo-tron" style="background: @MauHang(h.Ma)">@h.Ma</span>
+                                        <div>
+                                            <b>@h.Ten</b>
+                                            <span class="a-phu">Mã hãng: @h.Ma</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center"><span class="a-nhan duong">@h.ChuyenBays.Count chuyến</span></td>
+                                <td>
+                                    <div class="nhom-nut">
+                                        <a asp-action="Edit" asp-route-id="@h.Id" class="nut-nho" title="Sửa" aria-label="Sửa">✏️</a>
+                                        <form asp-action="Delete" asp-route-id="@h.Id" method="post"
+                                              onsubmit="return confirm('Xoá hãng @h.Ten?');">
+                                            <button type="submit" class="nut-nho xoa" disabled="@conChuyen"
+                                                    title="@(conChuyen ? "Hãng còn chuyến bay, không xoá được" : "Xoá")" aria-label="Xoá">
+                                                🗑
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <form asp-action="Create" method="post" class="a-the a-form a-dinh">
+            <h5>Thêm hãng mới</h5>
+            <div asp-validation-summary="ModelOnly" class="a-form-loi"></div>
+
+            <div class="mb-3">
+                <label asp-for="Ma" class="form-label"></label>
+                <input asp-for="Ma" class="form-control text-uppercase" maxlength="2" placeholder="VD: HS" />
+                <span asp-validation-for="Ma" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Ten" class="form-label"></label>
+                <input asp-for="Ten" class="form-control" placeholder="VD: Hoa Sen Airlines" />
+                <span asp-validation-for="Ten" class="text-danger small"></span>
+            </div>
+
+            <button type="submit" class="btn btn-vang w-100">+ Thêm hãng</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

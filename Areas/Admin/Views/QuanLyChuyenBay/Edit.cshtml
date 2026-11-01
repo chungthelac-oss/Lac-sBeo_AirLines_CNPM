@@ -1,0 +1,42 @@
+﻿@model DatVeMayBay.Models.ChuyenBay
+@{
+    ViewData["Title"] = "Sửa chuyến bay " + Model.SoHieu;
+}
+
+<a asp-action="Index" class="a-quay-lai">← Danh sách chuyến bay</a>
+<div class="a-dau">
+    <div>
+        <h1>Sửa chuyến bay @Model.SoHieu</h1>
+        <p>Thay đổi sẽ áp dụng ngay cho trang tìm chuyến bay của khách.</p>
+    </div>
+</div>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="row g-4">
+        <div class="col-xl-8">
+            <div class="a-the">
+                <div asp-validation-summary="ModelOnly" class="a-form-loi"></div>
+                <partial name="_FormChuyenBay" />
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="a-the a-dinh">
+                <h5>Lưu thay đổi</h5>
+                <button type="submit" class="btn btn-vang w-100">Lưu thay đổi</button>
+                <a asp-action="Index" class="btn btn-light w-100 mt-2">Huỷ</a>
+                <hr />
+                <div class="d-grid gap-2">
+                    <a asp-action="ChangDungs" asp-route-id="@Model.Id" class="btn btn-outline-secondary">📍 Quản lý chặng dừng</a>
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">👁 Xem chi tiết</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

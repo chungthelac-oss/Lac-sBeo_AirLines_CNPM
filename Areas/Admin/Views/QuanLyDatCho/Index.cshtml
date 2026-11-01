@@ -1,0 +1,99 @@
+﻿@model List<DatVeMayBay.Models.DatCho>
+@using DatVeMayBay.Models
+@{
+    ViewData["Title"] = "Duyệt vé";
+    var dangLoc = ViewBag.TrangThai as TrangThaiDatCho?;
+    var soCho = (int)ViewBag.SoChoXacNhan;
+}
+
+@functions {
+    string LopNhan(TrangThaiDatCho t) => t switch
+    {
+        TrangThaiDatCho.ChoXacNhan => "vang",
+        TrangThaiDatCho.DaXacNhan => "xanh",
+        _ => "xam"
+    };
+}
+
+<div class="a-dau">
+    <div>
+        <h1>Duyệt vé</h1>
+        <p>@(soCho > 0 ? $"Có {soCho} vé đang chờ bạn xác nhận." : "Không có vé nào đang chờ xác nhận.")</p>
+    </div>
+</div>
+
+<div class="a-loc">
+    <a class="@(dangLoc == null ? "active" : "")" asp-action="Index">Tất cả</a>
+    <a class="@(dangLoc == TrangThaiDatCho.ChoXacNhan ? "active" : "")" asp-action="Index" asp-route-trangThai="ChoXacNhan">
+        Chờ xác nhận <span class="so">@soCho</span>
+    </a>
+    <a class="@(dangLoc == TrangThaiDatCho.DaXacNhan ? "active" : "")" asp-action="Index" asp-route-trangThai="DaXacNhan">Đã xác nhận</a>
+    <a class="@(dangLoc == TrangThaiDatCho.DaHuy ? "active" : "")" asp-action="Index" asp-route-trangThai="DaHuy">Đã huỷ</a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="a-the a-trong">
+        <div class="ic" aria-hidden="true">📋</div>
+        <p class="mb-0">Không có vé nào ở mục này.</p>
+    </div>
+}
+else
+{
+    <div class="a-the khong-dem">
+        <div class="table-responsive">
+            <table class="a-bang">
+                <thead>
+                    <tr>
+                        <th>Mã</th>
+                        <th>Hành khách</th>
+                        <th>Người đặt</th>
+                        <th>Chuyến bay</th>
+                        <th class="text-end">Giá vé</th>
+                        <th>Trạng thái</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var dc in Model)
+                    {
+                        <tr>
+                            <td><span class="a-ma">@dc.MaDatCho</span></td>
+                            <td>
+                                <b>@dc.HanhKhach?.HoTen</b>
+                                <span class="a-phu">Đặt lúc @dc.NgayDat.ToString("HH:mm dd/MM")</span>
+                            </td>
+                            <td>
+                                @dc.KhachHang?.Email
+                                <span class="a-phu">@dc.SoDienThoai</span>
+                            </td>
+                            <td>
+                                <b>@dc.ChuyenBay?.SoHieu</b> · @dc.ChuyenBay?.DiemDi → @dc.ChuyenBay?.DiemDen
+                                <span class="a-phu">@dc.ChuyenBay?.GioCatCanh.ToString("HH:mm dd/MM/yyyy")</span>
+                            </td>
+                            <td class="text-end fw-bold">@dc.TongTien.ToString("N0") ₫</td>
+                            <td><span class="a-nhan @LopNhan(dc.TrangThai)">@dc.TenTrangThai</span></td>
+                            <td>
+                                <div class="nhom-nut">
+                                    @if (dc.TrangThai == TrangThaiDatCho.ChoXacNhan)
+                                    {
+                                        <form asp-action="XacNhan" asp-route-id="@dc.Id" asp-route-trangThai="@dangLoc" method="post">
+                                            <button type="submit" class="btn btn-sm btn-success fw-semibold">✓ Xác nhận</button>
+                                        </form>
+                                    }
+                                    @if (dc.TrangThai != TrangThaiDatCho.DaHuy)
+                                    {
+                                        <form asp-action="Huy" asp-route-id="@dc.Id" asp-route-trangThai="@dangLoc" method="post"
+                                              onsubmit="return confirm('Huỷ vé @dc.MaDatCho?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Huỷ</button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

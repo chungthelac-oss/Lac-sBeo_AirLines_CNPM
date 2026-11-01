@@ -1,0 +1,173 @@
+﻿@model DatVeMayBay.Models.ChangDung
+@{
+    var cb = (DatVeMayBay.Models.ChuyenBay)ViewBag.ChuyenBay;
+    ViewData["Title"] = "Chặng dừng " + cb.SoHieu;
+    var dsChang = cb.ChangDungs.OrderBy(x => x.GioDen).ToList();
+}
+
+<style>
+    .lo-trinh {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        position: relative;
+    }
+
+        .lo-trinh::before {
+            content: "";
+            position: absolute;
+            left: 11px;
+            top: 22px;
+            bottom: 22px;
+            width: 2px;
+            background: repeating-linear-gradient(180deg, #b8c4d2 0 6px, transparent 6px 10px);
+        }
+
+        .lo-trinh li {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 0;
+        }
+
+        .lo-trinh .cham {
+            position: relative;
+            z-index: 1;
+            flex: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #fff;
+            border: 3px solid var(--xanh);
+        }
+
+        .lo-trinh .dau .cham,
+        .lo-trinh .cuoi .cham {
+            background: var(--xanh);
+        }
+
+        .lo-trinh .dung .cham {
+            border-color: var(--vang);
+        }
+
+        .lo-trinh .trong .cham {
+            border-color: #c3cbd6;
+            border-style: dashed;
+        }
+
+        .lo-trinh .noi-dung-diem {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .lo-trinh .ma-diem {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: var(--xanh-dam);
+        }
+</style>
+
+<a asp-action="Index" class="a-quay-lai">← Danh sách chuyến bay</a>
+<div class="a-dau">
+    <div>
+        <h1>Chặng dừng · @cb.SoHieu</h1>
+        <p>@cb.HangHangKhong?.Ten · @cb.DiemDi → @cb.DiemDen · @cb.GioCatCanh.ToString("dd/MM/yyyy")</p>
+    </div>
+    <div class="a-nut-dau">
+        <a asp-action="Details" asp-route-id="@cb.Id" class="btn btn-outline-secondary">👁 Xem chuyến bay</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Lộ trình -->
+    <div class="col-lg-7">
+        <div class="a-the">
+            <h5>Lộ trình</h5>
+            <ol class="lo-trinh">
+                <li class="dau">
+                    <span class="cham"></span>
+                    <div class="noi-dung-diem">
+                        <span class="ma-diem">@cb.DiemDi</span>
+                        <span class="a-phu">Cất cánh @cb.GioCatCanh.ToString("HH:mm dd/MM")</span>
+                    </div>
+                </li>
+
+                @if (dsChang.Count == 0)
+                {
+                    <li class="trong">
+                        <span class="cham"></span>
+                        <div class="noi-dung-diem text-success fw-semibold">Bay thẳng, chưa có chặng dừng</div>
+                    </li>
+                }
+
+                @foreach (var cd in dsChang)
+                {
+                    <li class="dung">
+                        <span class="cham"></span>
+                        <div class="noi-dung-diem">
+                            <span class="ma-diem">@cd.SanBayMa</span>
+                            <span class="fw-semibold ms-1">@cd.SanBay?.Ten</span>
+                            <span class="a-phu">
+                                Đến @cd.GioDen.ToString("HH:mm") · Đi @cd.GioDi.ToString("HH:mm")
+                                · dừng @((int)(cd.GioDi - cd.GioDen).TotalMinutes) phút
+                            </span>
+                        </div>
+                        <form asp-action="XoaChangDung" asp-route-id="@cd.Id" method="post" class="m-0"
+                              onsubmit="return confirm('Xoá chặng dừng tại @cd.SanBayMa?');">
+                            <button type="submit" class="nut-nho xoa" title="Xoá chặng dừng" aria-label="Xoá chặng dừng">🗑</button>
+                        </form>
+                    </li>
+                }
+
+                <li class="cuoi">
+                    <span class="cham"></span>
+                    <div class="noi-dung-diem">
+                        <span class="ma-diem">@cb.DiemDen</span>
+                        <span class="a-phu">Hạ cánh @cb.GioHaCanh.ToString("HH:mm dd/MM")</span>
+                    </div>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Form thêm -->
+    <div class="col-lg-5">
+        <form asp-action="ThemChangDung" method="post" class="a-the a-form a-dinh">
+            <h5>Thêm chặng dừng</h5>
+            <div asp-validation-summary="ModelOnly" class="a-form-loi"></div>
+            <input type="hidden" asp-for="ChuyenBayId" />
+
+            <div class="mb-3">
+                <label asp-for="SanBayMa" class="form-label"></label>
+                <select asp-for="SanBayMa" class="form-select" asp-items="ViewBag.SanBayList">
+                    <option value="">-- Chọn sân bay --</option>
+                </select>
+                <span asp-validation-for="SanBayMa" class="text-danger small"></span>
+            </div>
+
+            <div class="row g-3 mb-2">
+                <div class="col-sm-6">
+                    <label asp-for="GioDen" class="form-label"></label>
+                    <input asp-for="GioDen" class="form-control" />
+                    <span asp-validation-for="GioDen" class="text-danger small"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="GioDi" class="form-label"></label>
+                    <input asp-for="GioDi" class="form-control" />
+                    <span asp-validation-for="GioDi" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <p class="small text-muted mb-3">
+                Phải nằm trong khoảng @cb.GioCatCanh.ToString("HH:mm dd/MM") đến @cb.GioHaCanh.ToString("HH:mm dd/MM").
+            </p>
+
+            <button type="submit" class="btn btn-vang w-100">+ Thêm chặng dừng</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

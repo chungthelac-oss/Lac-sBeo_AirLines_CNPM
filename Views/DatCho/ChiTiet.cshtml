@@ -1,0 +1,490 @@
+﻿@model DatVeMayBay.Models.DatCho
+@using DatVeMayBay.Models
+@{
+    ViewData["Title"] = "Vé " + Model.MaDatCho;
+    var cb = Model.ChuyenBay!;
+    var hk = Model.HanhKhach;
+    var tg = cb.GioHaCanh - cb.GioCatCanh;
+    var thu = new[] { "CN", "T2", "T3", "T4", "T5", "T6", "T7" };
+    var daHuy = Model.TrangThai == TrangThaiDatCho.DaHuy;
+    var daXacNhan = Model.TrangThai == TrangThaiDatCho.DaXacNhan;
+    var hanHuy = cb.GioCatCanh.AddHours(-24);
+    var conHuyDuoc = !daHuy && DateTime.Now < hanHuy;
+}
+
+@functions {
+    string MauHang(string? ma) => ma switch
+    {
+        "CD" => "#0b5cad",
+        "SV" => "#d6336c",
+        "MT" => "#0ca678",
+        _ => "#6b7787"
+    };
+}
+
+<style>
+    /* ===== THANH TRẠNG THÁI ===== */
+    .trang-thai-ve {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        background: #fff;
+        border: 1px solid var(--vien);
+        border-radius: 14px;
+        padding: 14px 18px;
+        margin-bottom: 18px;
+    }
+
+    .moc {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: var(--xam);
+    }
+
+        .moc .cham {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 0.85rem;
+            font-weight: 800;
+            background: #e3e8ef;
+            color: var(--xam);
+        }
+
+        .moc.xong {
+            color: #0ca678;
+        }
+
+            .moc.xong .cham {
+                background: #0ca678;
+                color: #fff;
+            }
+
+        .moc.dang {
+            color: #b37400;
+        }
+
+            .moc.dang .cham {
+                background: var(--vang);
+                color: #0a3f80;
+                box-shadow: 0 0 0 4px rgba(255, 194, 14, 0.25);
+            }
+
+        .moc.huy {
+            color: #c92a2a;
+        }
+
+            .moc.huy .cham {
+                background: #c92a2a;
+                color: #fff;
+            }
+
+    .noi {
+        flex: 1;
+        min-width: 20px;
+        max-width: 80px;
+        height: 2px;
+        background: #d3dbe5;
+    }
+
+        .noi.xong {
+            background: #0ca678;
+        }
+
+        .noi.huy {
+            background: #c92a2a;
+        }
+
+    /* ===== THẺ LÊN MÁY BAY ===== */
+    .the-len-may {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr 250px;
+        background: #fff;
+        border: 1px solid var(--vien);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 14px 36px rgba(10, 37, 87, 0.12);
+    }
+
+    .phan-chinh {
+        min-width: 0;
+    }
+
+    .the-dau {
+        background: linear-gradient(150deg, #0a2557 0%, #13509f 100%);
+        color: #fff;
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .logo-hang {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+        color: #fff;
+        border: 2px solid rgba(255, 255, 255, 0.6);
+        flex: none;
+    }
+
+    .the-dau .phu {
+        color: #c9d6ea;
+        font-size: 0.85rem;
+    }
+
+    .the-dau .chu-lon {
+        margin-left: auto;
+        font-weight: 800;
+        letter-spacing: 2px;
+        font-size: 0.8rem;
+        color: #ffd24d;
+    }
+
+    .tuyen-lon {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 16px;
+        padding: 22px 24px 8px;
+    }
+
+        .tuyen-lon .ma-sb {
+            font-size: 2.4rem;
+            font-weight: 800;
+            line-height: 1;
+            color: var(--xanh-dam);
+        }
+
+        .tuyen-lon .gio {
+            font-size: 1.15rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .tuyen-lon .tp {
+            color: var(--xam);
+            font-size: 0.8rem;
+        }
+
+        .tuyen-lon .giua {
+            text-align: center;
+            color: var(--xam);
+            font-size: 0.82rem;
+        }
+
+        .tuyen-lon .vach {
+            position: relative;
+            height: 2px;
+            margin: 8px 16px;
+            background: repeating-linear-gradient(90deg, #b8c4d2 0 6px, transparent 6px 10px);
+        }
+
+            .tuyen-lon .vach span {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -52%);
+                background: #fff;
+                padding: 0 6px;
+                color: var(--xanh);
+                font-size: 1.2rem;
+            }
+
+    .luoi-thong-tin {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px 20px;
+        padding: 16px 24px 22px;
+    }
+
+    .o-tt .nhan {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--xam);
+        text-transform: uppercase;
+        letter-spacing: 0.7px;
+    }
+
+    .o-tt .gia-tri {
+        font-weight: 700;
+        overflow-wrap: anywhere;
+    }
+
+    /* Cuống vé */
+    .cuong-ve {
+        position: relative;
+        border-left: 2px dashed #d3dbe5;
+        padding: 22px 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        background: #fbfcfe;
+    }
+
+        .cuong-ve::before,
+        .cuong-ve::after {
+            content: "";
+            position: absolute;
+            left: -13px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--nen);
+            border: 1px solid var(--vien);
+        }
+
+        .cuong-ve::before {
+            top: -13px;
+        }
+
+        .cuong-ve::after {
+            bottom: -13px;
+        }
+
+        .cuong-ve .nhan {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--xam);
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+
+    .ma-lon {
+        font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: 5px;
+        color: var(--xanh-dam);
+    }
+
+    .cuong-ve .gia {
+        color: #e8590c;
+        font-size: 1.4rem;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .ma-vach {
+        margin-top: auto;
+        height: 52px;
+        border-radius: 4px;
+        background: repeating-linear-gradient(90deg, #1d2b3a 0 2px, transparent 2px 4px, #1d2b3a 4px 5px, transparent 5px 8px, #1d2b3a 8px 11px, transparent 11px 13px);
+    }
+
+    /* Con dấu ĐÃ HUỶ */
+    .the-len-may.da-huy .phan-chinh,
+    .the-len-may.da-huy .cuong-ve {
+        filter: grayscale(0.85);
+        opacity: 0.75;
+    }
+
+    .dong-dau {
+        position: absolute;
+        top: 50%;
+        left: 42%;
+        transform: translate(-50%, -50%) rotate(-14deg);
+        border: 4px solid #c92a2a;
+        color: #c92a2a;
+        font-weight: 900;
+        font-size: 2.2rem;
+        letter-spacing: 6px;
+        padding: 4px 22px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.75);
+        pointer-events: none;
+    }
+
+    /* Hành động */
+    .hanh-dong {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+    }
+
+    @@media (max-width: 767.98px) {
+        .the-len-may {
+            grid-template-columns: 1fr;
+        }
+
+        .cuong-ve {
+            border-left: none;
+            border-top: 2px dashed #d3dbe5;
+        }
+
+            .cuong-ve::before {
+                top: -13px;
+                left: -13px;
+            }
+
+            .cuong-ve::after {
+                top: -13px;
+                bottom: auto;
+                left: auto;
+                right: -13px;
+            }
+
+        .luoi-thong-tin {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .tuyen-lon .ma-sb {
+            font-size: 1.8rem;
+        }
+
+        .dong-dau {
+            left: 50%;
+            font-size: 1.6rem;
+        }
+    }
+</style>
+
+<a asp-action="TraCuu" class="btn btn-link px-0">← Tra cứu mã khác</a>
+
+<div class="d-flex align-items-center flex-wrap gap-2 mb-3">
+    <h1 class="fw-bold mb-0">Chi tiết đặt chỗ</h1>
+    <span class="badge @Model.MauTrangThai fs-6">@Model.TenTrangThai</span>
+</div>
+
+@if (TempData["ThongBao"] != null)
+{
+    <div class="alert alert-success">@TempData["ThongBao"]</div>
+}
+@if (TempData["Loi"] != null)
+{
+    <div class="alert alert-danger">@TempData["Loi"]</div>
+}
+
+<!-- ===== THANH TRẠNG THÁI ===== -->
+<div class="trang-thai-ve" aria-label="Trạng thái vé">
+    <div class="moc xong"><span class="cham">✓</span> Đặt vé</div>
+    @if (daHuy)
+    {
+        <div class="noi huy"></div>
+        <div class="moc huy"><span class="cham">✕</span> Đã huỷ</div>
+    }
+    else
+    {
+        <div class="noi xong"></div>
+        <div class="moc @(daXacNhan ? "xong" : "dang")">
+            <span class="cham">@(daXacNhan ? "✓" : "2")</span> Chờ xác nhận
+        </div>
+        <div class="noi @(daXacNhan ? "xong" : "")"></div>
+        <div class="moc @(daXacNhan ? "xong" : "")">
+            <span class="cham">@(daXacNhan ? "✓" : "3")</span> Đã xác nhận
+        </div>
+    }
+</div>
+
+<!-- ===== THẺ LÊN MÁY BAY ===== -->
+<div class="the-len-may @(daHuy ? "da-huy" : "")">
+    <div class="phan-chinh">
+        <div class="the-dau">
+            <div class="logo-hang" style="background: @MauHang(cb.HangHangKhong?.Ma)">@cb.HangHangKhong?.Ma</div>
+            <div>
+                <div class="fw-bold">@cb.HangHangKhong?.Ten</div>
+                <div class="phu">Chuyến @cb.SoHieu · @thu[(int)cb.GioCatCanh.DayOfWeek], @cb.GioCatCanh.ToString("dd/MM/yyyy")</div>
+            </div>
+            <div class="chu-lon d-none d-sm-block">BOARDING PASS</div>
+        </div>
+
+        <div class="tuyen-lon">
+            <div>
+                <div class="ma-sb">@cb.DiemDi</div>
+                <div class="gio">@cb.GioCatCanh.ToString("HH:mm")</div>
+            </div>
+            <div class="giua">
+                Thời gian bay
+                <div class="vach"><span aria-hidden="true">✈</span></div>
+                @((int)tg.TotalHours) giờ @tg.Minutes.ToString("00") phút
+            </div>
+            <div class="text-end">
+                <div class="ma-sb">@cb.DiemDen</div>
+                <div class="gio">@cb.GioHaCanh.ToString("HH:mm")</div>
+            </div>
+        </div>
+
+        <div class="luoi-thong-tin">
+            <div class="o-tt">
+                <div class="nhan">Hành khách</div>
+                <div class="gia-tri">@hk?.HoTen</div>
+            </div>
+            <div class="o-tt">
+                <div class="nhan">Ngày sinh</div>
+                <div class="gia-tri">@(hk?.NgaySinh?.ToString("dd/MM/yyyy") ?? "—")</div>
+            </div>
+            <div class="o-tt">
+                <div class="nhan">CCCD / Hộ chiếu</div>
+                <div class="gia-tri">@(string.IsNullOrEmpty(hk?.SoGiayTo) ? "—" : hk!.SoGiayTo)</div>
+            </div>
+            <div class="o-tt">
+                <div class="nhan">Ngày đặt</div>
+                <div class="gia-tri">@Model.NgayDat.ToString("HH:mm dd/MM/yyyy")</div>
+            </div>
+            <div class="o-tt">
+                <div class="nhan">Điện thoại</div>
+                <div class="gia-tri">@Model.SoDienThoai</div>
+            </div>
+            <div class="o-tt">
+                <div class="nhan">Email</div>
+                <div class="gia-tri">@Model.Email</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="cuong-ve">
+        <div class="nhan">Mã đặt chỗ</div>
+        <div class="ma-lon">@Model.MaDatCho</div>
+        <div class="nhan mt-3">Giá vé</div>
+        <div class="gia">@Model.TongTien.ToString("N0") ₫</div>
+        <small class="text-muted mb-3">Đã gồm thuế, phí</small>
+        <div class="ma-vach" aria-hidden="true"></div>
+    </div>
+
+    @if (daHuy)
+    {
+        <div class="dong-dau" aria-hidden="true">ĐÃ HUỶ</div>
+    }
+</div>
+
+<!-- ===== HÀNH ĐỘNG ===== -->
+<div class="hanh-dong">
+    <div class="text-muted small">
+        @if (daHuy)
+        {
+            <text>Vé đã huỷ, ghế đã được trả lại cho chuyến bay.</text>
+        }
+        else if (conHuyDuoc)
+        {
+            <text>Huỷ miễn phí trước <b>@hanHuy.ToString("HH:mm dd/MM/yyyy")</b>.</text>
+        }
+        else
+        {
+            <text>Đã quá hạn huỷ vé (phải huỷ trước giờ bay ít nhất 24 giờ).</text>
+        }
+    </div>
+
+    <div class="d-flex gap-2">
+        <a asp-action="TraCuu" class="btn btn-outline-secondary">Tra cứu mã khác</a>
+        @if (conHuyDuoc)
+        {
+            <form asp-action="Huy" method="post" onsubmit="return confirm('Huỷ vé @Model.MaDatCho? Thao tác này không hoàn tác được.');">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <input type="hidden" name="email" value="@Model.Email" />
+                <button type="submit" class="btn btn-outline-danger">Huỷ vé</button>
+            </form>
+        }
+    </div>
+</div>

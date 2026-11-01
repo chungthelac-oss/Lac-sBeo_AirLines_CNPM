@@ -1,0 +1,523 @@
+﻿@model List<DatVeMayBay.Models.ChuyenBay>
+@{
+    ViewData["Title"] = "Chuyến bay";
+    var sanBays = (List<DatVeMayBay.Models.SanBay>)ViewBag.SanBays;
+    var diChon = ViewBag.DiemDi as string;
+    var denChon = ViewBag.DiemDen as string;
+    var ngayChon = ViewBag.NgayDi as DateTime?;
+
+    var tenDi = sanBays.FirstOrDefault(s => s.Ma == diChon)?.ThanhPho;
+    var tenDen = sanBays.FirstOrDefault(s => s.Ma == denChon)?.ThanhPho;
+    var thu = new[] { "CN", "T2", "T3", "T4", "T5", "T6", "T7" };
+    var homNay = DateTime.Today.ToString("yyyy-MM-dd");
+}
+
+@functions {
+    // Màu riêng cho logo từng hãng
+    string MauHang(string? ma) => ma switch
+    {
+        "CD" => "#0b5cad",
+        "SV" => "#d6336c",
+        "MT" => "#0ca678",
+        _ => "#6b7787"
+    };
+
+    // Đổi phút ra "2g 10p"
+    string ThoiLuong(TimeSpan tg) => $"{(int)tg.TotalHours}g {tg.Minutes:00}p";
+}
+
+<style>
+    /* ===== THANH TÌM KIẾM ===== */
+    .thanh-tim {
+        background:
+            radial-gradient(ellipse at 90% 0%, rgba(255, 214, 102, 0.25), transparent 45%),
+            linear-gradient(160deg, #0a2557 0%, #13509f 100%);
+        border-radius: 16px;
+        padding: 22px 24px 24px;
+        margin-bottom: 28px;
+        box-shadow: 0 10px 28px rgba(10, 37, 87, 0.22);
+    }
+
+    .thanh-tim .nhan {
+        display: block;
+        color: #c9d6ea;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        margin-bottom: 6px;
+    }
+
+    .thanh-tim .form-select,
+    .thanh-tim .form-control {
+        height: 50px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 500;
+    }
+
+    .thanh-tim .nut-vang { height: 50px; border-radius: 10px; }
+
+    .cap-diem { display: flex; align-items: center; gap: 8px; }
+    .cap-diem .form-select { flex: 1; min-width: 0; }
+
+    .nut-doi {
+        flex: none;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 700;
+        transition: transform 0.25s, background 0.15s;
+    }
+
+    .nut-doi:hover { background: rgba(255, 255, 255, 0.25); transform: rotate(180deg); }
+
+    /* ===== ĐẦU KẾT QUẢ ===== */
+    .dau-ket-qua {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .dau-ket-qua h2 { font-weight: 800; font-size: 1.6rem; text-wrap: balance; }
+    .dau-ket-qua .mui-ten { color: var(--vang); margin: 0 6px; }
+
+    .nhom-sap-xep { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .chip-sx {
+        border: 1px solid var(--vien);
+        background: #fff;
+        color: var(--chu);
+        border-radius: 999px;
+        padding: 7px 16px;
+        font-size: 0.88rem;
+        font-weight: 600;
+    }
+
+    .chip-sx:hover { border-color: var(--xanh); color: var(--xanh); }
+    .chip-sx.active { background: var(--xanh); border-color: var(--xanh); color: #fff; }
+
+    /* ===== THẺ CHUYẾN BAY ===== */
+    .ds-chuyen { display: grid; gap: 14px; }
+
+    .the-chuyen {
+        display: grid;
+        grid-template-columns: 220px 1fr 210px;
+        gap: 24px;
+        align-items: center;
+        background: #fff;
+        border: 1px solid var(--vien);
+        border-radius: 16px;
+        padding: 20px 24px;
+        transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+    }
+
+    .the-chuyen:hover {
+        border-color: var(--xanh);
+        box-shadow: 0 8px 24px rgba(11, 92, 173, 0.12);
+        transform: translateY(-2px);
+    }
+
+    .the-chuyen.het { background: #fafbfc; }
+    .the-chuyen.het .gia { color: var(--xam); }
+
+    /* Cột hãng */
+    .hang { display: flex; align-items: center; gap: 12px; }
+
+    .logo-hang {
+        flex: none;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        font-weight: 800;
+        font-size: 0.95rem;
+        letter-spacing: 0.5px;
+    }
+
+    .ten-hang { font-weight: 700; line-height: 1.25; }
+    .so-hieu { color: var(--xam); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+
+    /* Cột lịch trình */
+    .lich-trinh { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; }
+
+    .diem .gio {
+        font-size: 1.65rem;
+        font-weight: 800;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .diem .gio sup { font-size: 0.7rem; color: #e8590c; font-weight: 700; margin-left: 2px; }
+    .diem .ma { font-weight: 700; color: var(--xanh-dam); margin-top: 4px; }
+    .diem .tp { color: var(--xam); font-size: 0.8rem; max-width: 130px; }
+
+    .duong-bay { text-align: center; min-width: 0; }
+    .duong-bay .thoi-gian { font-size: 0.85rem; font-weight: 600; color: var(--chu); }
+
+    .vach {
+        position: relative;
+        height: 2px;
+        margin: 8px 14px;
+        background: repeating-linear-gradient(90deg, #b8c4d2 0 6px, transparent 6px 10px);
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+    }
+
+    .vach::before {
+        content: "";
+        position: absolute;
+        left: -6px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--xanh);
+    }
+
+    .cham-dung {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px solid var(--vang);
+        position: relative;
+        z-index: 1;
+    }
+
+    .may-bay {
+        position: absolute;
+        right: -14px;
+        top: 50%;
+        transform: translateY(-52%);
+        color: var(--xanh);
+        background: #fff;
+        padding-left: 4px;
+        font-size: 1.1rem;
+        line-height: 1;
+    }
+
+    .duong-bay .loai { font-size: 0.78rem; font-weight: 600; }
+    .duong-bay .loai.thang { color: #0ca678; }
+    .duong-bay .loai.dung { color: #c27c00; }
+
+    /* Cột giá */
+    .gia-dat { text-align: right; border-left: 1px dashed var(--vien); padding-left: 24px; }
+
+    .gia {
+        color: #e8590c;
+        font-size: 1.55rem;
+        font-weight: 800;
+        line-height: 1.1;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .gia span { font-size: 1rem; }
+    .moi-khach { color: var(--xam); font-size: 0.8rem; margin-bottom: 8px; }
+    .con-ghe { color: #d6336c; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; }
+
+    .nut-chon {
+        background: var(--vang);
+        color: #0a3f80;
+        font-weight: 800;
+        text-transform: uppercase;
+        border: none;
+        border-radius: 10px;
+        padding: 9px 30px;
+    }
+
+    .nut-chon:hover { background: #ffb300; color: #0a3f80; }
+
+    /* Dòng chi tiết chặng dừng */
+    .chi-tiet-dung {
+        grid-column: 1 / -1;
+        border-top: 1px dashed var(--vien);
+        padding-top: 12px;
+        margin-top: -6px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 20px;
+        font-size: 0.85rem;
+        color: #8a5a00;
+    }
+
+    /* Khi không có kết quả */
+    .khong-co {
+        background: #fff;
+        border: 1px dashed #c9d1db;
+        border-radius: 16px;
+        padding: 48px 20px;
+        text-align: center;
+    }
+
+    .khong-co .icon { font-size: 2.6rem; margin-bottom: 8px; }
+
+    /* ===== ĐIỆN THOẠI ===== */
+    @@media (max-width: 991.98px) {
+        .the-chuyen { grid-template-columns: 1fr; gap: 16px; }
+
+        .gia-dat {
+            border-left: none;
+            border-top: 1px dashed var(--vien);
+            padding: 14px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            text-align: left;
+        }
+
+        .moi-khach { margin-bottom: 0; }
+        .diem .gio { font-size: 1.4rem; }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .the-chuyen, .nut-doi { transition: none; }
+        .the-chuyen:hover { transform: none; }
+        .nut-doi:hover { transform: none; }
+    }
+</style>
+
+<!-- ===== THANH TÌM KIẾM ===== -->
+<section class="thanh-tim">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-lg-6">
+            <span class="nhan">Hành trình</span>
+            <div class="cap-diem">
+                <select name="diemDi" id="diemDi" class="form-select" aria-label="Điểm đi">
+                    <option value="">📍 Điểm đi</option>
+                    @foreach (var sb in sanBays)
+                    {
+                        <option value="@sb.Ma" selected="@(sb.Ma == diChon)">@sb.ThanhPho (@sb.Ma)</option>
+                    }
+                </select>
+
+                <button type="button" class="nut-doi" id="nutDoi" title="Đổi chiều" aria-label="Đổi điểm đi và điểm đến">⇄</button>
+
+                <select name="diemDen" id="diemDen" class="form-select" aria-label="Điểm đến">
+                    <option value="">📍 Điểm đến</option>
+                    @foreach (var sb in sanBays)
+                    {
+                        <option value="@sb.Ma" selected="@(sb.Ma == denChon)">@sb.ThanhPho (@sb.Ma)</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <label class="nhan" for="ngayDi">Ngày đi</label>
+            <input type="date" id="ngayDi" name="ngayDi" class="form-control" min="@homNay"
+                   value="@(ngayChon?.ToString("yyyy-MM-dd"))" />
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <button type="submit" class="btn nut-vang w-100">Tìm chuyến bay</button>
+        </div>
+    </form>
+</section>
+
+@if (TempData["Loi"] != null)
+{
+    <div class="alert alert-danger">@TempData["Loi"]</div>
+}
+
+<!-- ===== ĐẦU KẾT QUẢ ===== -->
+<div class="dau-ket-qua">
+    <div>
+        <h2 class="mb-1">
+            @if (tenDi != null || tenDen != null)
+            {
+                @(tenDi ?? "Mọi nơi")
+                <span class="mui-ten">→</span>
+
+                @(tenDen ?? "Mọi nơi")
+            }
+            else
+            {
+                <text>Tất cả chuyến bay</text>
+            }
+        </h2>
+        <div class="text-muted">
+            <b>@Model.Count</b> chuyến bay
+            @if (ngayChon.HasValue)
+            {
+                <text>· @thu[(int)ngayChon.Value.DayOfWeek], @ngayChon.Value.ToString("dd/MM/yyyy")</text>
+            }
+            else
+            {
+                <text>sắp khởi hành</text>
+            }
+        </div>
+    </div>
+
+    @if (Model.Count > 1)
+    {
+        <div class="nhom-sap-xep" role="group" aria-label="Sắp xếp kết quả">
+            <button type="button" class="chip-sx active" data-sx="gio">Sớm nhất</button>
+            <button type="button" class="chip-sx" data-sx="gia">Giá thấp nhất</button>
+            <button type="button" class="chip-sx" data-sx="thoigian">Bay nhanh nhất</button>
+        </div>
+    }
+</div>
+
+<!-- ===== DANH SÁCH CHUYẾN BAY ===== -->
+@if (Model.Count == 0)
+{
+    <div class="khong-co">
+        <div class="icon" aria-hidden="true">🛫</div>
+        <h5 class="fw-bold">Không có chuyến bay nào phù hợp</h5>
+        <p class="text-muted mb-3">Thử đổi ngày bay, hoặc bỏ bớt điều kiện điểm đi và điểm đến.</p>
+        <a asp-action="Index" class="btn btn-primary">Xem tất cả chuyến bay</a>
+    </div>
+}
+else
+{
+    <div id="dsChuyen" class="ds-chuyen">
+        @foreach (var cb in Model)
+        {
+            var tg = cb.GioHaCanh - cb.GioCatCanh;
+            var dsDung = cb.ChangDungs.OrderBy(x => x.GioDen).ToList();
+            var conBan = cb.MoDatVe && cb.SoGheTrong > 0;
+            var quaNgay = (cb.GioHaCanh.Date - cb.GioCatCanh.Date).Days;
+            var phutKhoiHanh = (long)(cb.GioCatCanh - DateTime.UnixEpoch).TotalMinutes;
+
+            <article class="the-chuyen @(conBan ? "" : "het")"
+                     data-gio="@phutKhoiHanh" data-gia="@((long)cb.GiaVe)" data-thoigian="@((long)tg.TotalMinutes)">
+
+                <!-- Hãng -->
+                <div class="hang">
+                    <div class="logo-hang" style="background: @MauHang(cb.HangHangKhong?.Ma)">@cb.HangHangKhong?.Ma</div>
+                    <div>
+                        <div class="ten-hang">@cb.HangHangKhong?.Ten</div>
+                        <div class="so-hieu">@cb.SoHieu · @thu[(int)cb.GioCatCanh.DayOfWeek], @cb.GioCatCanh.ToString("dd/MM")</div>
+                    </div>
+                </div>
+
+                <!-- Lịch trình -->
+                <div class="lich-trinh">
+                    <div class="diem">
+                        <div class="gio">@cb.GioCatCanh.ToString("HH:mm")</div>
+                        <div class="ma">@cb.DiemDi</div>
+                        <div class="tp">@cb.SanBayDi?.ThanhPho</div>
+                    </div>
+
+                    <div class="duong-bay">
+                        <div class="thoi-gian">@ThoiLuong(tg)</div>
+                        <div class="vach">
+                            @foreach (var cd in dsDung)
+                            {
+                                <span class="cham-dung" title="Dừng tại @cd.SanBayMa"></span>
+                            }
+                            <span class="may-bay" aria-hidden="true">✈</span>
+                        </div>
+                        @if (dsDung.Count == 0)
+                        {
+                            <div class="loai thang">Bay thẳng</div>
+                        }
+                        else
+                        {
+                            <div class="loai dung">@dsDung.Count điểm dừng · @string.Join(", ", dsDung.Select(x => x.SanBayMa))</div>
+                        }
+                    </div>
+
+                    <div class="diem text-end">
+                        <div class="gio">
+                            @cb.GioHaCanh.ToString("HH:mm")
+                            @if (quaNgay > 0)
+                            {
+                                <sup>+@quaNgay</sup>
+                            }
+                        </div>
+                        <div class="ma">@cb.DiemDen</div>
+                        <div class="tp ms-auto">@cb.SanBayDen?.ThanhPho</div>
+                    </div>
+                </div>
+
+                <!-- Giá & nút chọn -->
+                <div class="gia-dat">
+                    <div>
+                        <div class="gia">@cb.GiaVe.ToString("N0") <span>₫</span></div>
+                        <div class="moi-khach">/ khách, đã gồm thuế phí</div>
+                    </div>
+                    <div>
+                        @if (!cb.MoDatVe)
+                        {
+                            <span class="badge bg-secondary px-3 py-2">Ngừng bán vé</span>
+                        }
+                        else if (cb.SoGheTrong <= 0)
+                        {
+                            <span class="badge bg-danger px-3 py-2">Hết chỗ</span>
+                        }
+                        else
+                        {
+                            @if (cb.SoGheTrong <= 5)
+                            {
+                                <div class="con-ghe">🔥 Chỉ còn @cb.SoGheTrong ghế</div>
+                            }
+                            <a asp-controller="DatCho" asp-action="Create" asp-route-chuyenBayId="@cb.Id"
+                               class="btn nut-chon">Chọn</a>
+                        }
+                    </div>
+                </div>
+
+                <!-- Chi tiết chặng dừng -->
+                @if (dsDung.Count > 0)
+                {
+                    <div class="chi-tiet-dung">
+                        @foreach (var cd in dsDung)
+                        {
+                            <span>
+                                ⏸ Dừng tại <b>@cd.SanBay?.Ten (@cd.SanBayMa)</b>:
+                                @cd.GioDen.ToString("HH:mm") → @cd.GioDi.ToString("HH:mm")
+                                (@((int)(cd.GioDi - cd.GioDen).TotalMinutes) phút)
+                            </span>
+                        }
+                    </div>
+                }
+            </article>
+        }
+    </div>
+}
+
+@section Scripts {
+    <script>
+        (function () {
+            // Nút ⇄: đổi chiều điểm đi và điểm đến
+            var nutDoi = document.getElementById('nutDoi');
+            if (nutDoi) {
+                nutDoi.addEventListener('click', function () {
+                    var di = document.getElementById('diemDi');
+                    var den = document.getElementById('diemDen');
+                    var tam = di.value;
+                    di.value = den.value;
+                    den.value = tam;
+                });
+            }
+
+            // Sắp xếp kết quả ngay trên trang, không cần tải lại
+            var ds = document.getElementById('dsChuyen');
+            var cacChip = document.querySelectorAll('.chip-sx');
+            cacChip.forEach(function (chip) {
+                chip.addEventListener('click', function () {
+                    cacChip.forEach(function (c) { c.classList.remove('active'); });
+                    chip.classList.add('active');
+
+                    var khoa = chip.dataset.sx;   // gio | gia | thoigian
+                    Array.from(ds.children)
+                        .sort(function (a, b) { return Number(a.dataset[khoa]) - Number(b.dataset[khoa]); })
+                        .forEach(function (the) { ds.appendChild(the); });
+                });
+            });
+        })();
+    </script>
+}

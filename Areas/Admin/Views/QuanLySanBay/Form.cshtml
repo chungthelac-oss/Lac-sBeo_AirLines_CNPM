@@ -1,0 +1,72 @@
+﻿@model DatVeMayBay.Models.SanBayViewModel
+@{
+    var dsThanhPho = (List<DatVeMayBay.Models.ThanhPho>)ViewBag.ThanhPhos;
+    ViewData["Title"] = Model.DangSua ? "Sửa sân bay " + Model.Ma : "Thêm sân bay";
+}
+
+<a asp-action="Index" class="a-quay-lai">← Danh sách sân bay</a>
+<div class="a-dau">
+    <div>
+        <h1>@ViewData["Title"]</h1>
+        <p>Một sân bay phải phục vụ ít nhất một thành phố.</p>
+    </div>
+</div>
+
+<form asp-action="@(Model.DangSua ? "Edit" : "Create")"
+      asp-route-id="@(Model.DangSua ? Model.Ma : null)" method="post">
+    <input type="hidden" asp-for="DangSua" />
+
+    <div class="row g-4">
+        <div class="col-xl-8">
+            <div class="a-the a-form">
+                <div asp-validation-summary="ModelOnly" class="a-form-loi"></div>
+
+                <div class="a-phan">Thông tin sân bay</div>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label asp-for="Ma" class="form-label"></label>
+                        <input asp-for="Ma" class="form-control text-uppercase fw-bold" maxlength="3"
+                               readonly="@Model.DangSua" placeholder="VD: VDO" />
+                        @if (Model.DangSua)
+                        {
+                            <div class="form-text">Không đổi được mã sân bay.</div>
+                        }
+                        <span asp-validation-for="Ma" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-8">
+                        <label asp-for="Ten" class="form-label"></label>
+                        <input asp-for="Ten" class="form-control" placeholder="VD: Vân Đồn" />
+                        <span asp-validation-for="Ten" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="a-phan">Thành phố phục vụ</div>
+                <p class="small text-muted mb-2">Bấm để chọn một hoặc nhiều thành phố.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var tp in dsThanhPho)
+                    {
+                        <input type="checkbox" class="btn-check" name="ThanhPhoIds" value="@tp.Id"
+                               id="tp_@tp.Id" autocomplete="off" checked="@Model.ThanhPhoIds.Contains(tp.Id)" />
+                        <label class="btn btn-outline-primary btn-sm rounded-pill px-3" for="tp_@tp.Id">@tp.Ten</label>
+                    }
+                </div>
+                <span asp-validation-for="ThanhPhoIds" class="text-danger small d-block mt-2"></span>
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="a-the a-dinh">
+                <h5>@(Model.DangSua ? "Lưu thay đổi" : "Thêm sân bay")</h5>
+                <button type="submit" class="btn btn-vang w-100">@(Model.DangSua ? "Lưu thay đổi" : "Thêm sân bay")</button>
+                <a asp-action="Index" class="btn btn-light w-100 mt-2">Huỷ</a>
+                <hr />
+                <p class="small text-muted mb-1">Chưa có thành phố cần chọn?</p>
+                <a asp-controller="QuanLyThanhPho" asp-action="Index" class="small fw-semibold text-decoration-none">🏙 Thêm thành phố mới →</a>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,65 @@
+﻿@model DatVeMayBay.Models.ChuyenBay
+@{
+    ViewData["Title"] = "Xoá chuyến " + Model.SoHieu;
+    var coVe = (bool)ViewBag.CoVe;
+}
+
+<a asp-action="Index" class="a-quay-lai">← Danh sách chuyến bay</a>
+<div class="a-dau">
+    <div>
+        <h1>Xoá chuyến bay @Model.SoHieu</h1>
+        <p>Kiểm tra kỹ thông tin trước khi xoá.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="a-the" style="border-top: 4px solid @(coVe ? "var(--vang)" : "#c92a2a");">
+            @if (coVe)
+            {
+                <div class="a-bao loi mb-3">
+                    <span class="ic">!</span>
+                    <span>Chuyến bay này <b>đã có người đặt vé</b> nên không thể xoá. Nếu không muốn bán tiếp, hãy <b>đóng đặt vé</b>.</span>
+                </div>
+            }
+            else
+            {
+                <div class="a-bao loi mb-3">
+                    <span class="ic">!</span>
+                    <span>Xoá chuyến bay sẽ xoá luôn các chặng dừng của nó. Thao tác này <b>không hoàn tác được</b>.</span>
+                </div>
+            }
+
+            <div class="a-luoi mb-4">
+                <div><div class="nhan">Hãng</div><div class="gia-tri">@Model.HangHangKhong?.Ten</div></div>
+                <div><div class="nhan">Hành trình</div><div class="gia-tri">@Model.DiemDi → @Model.DiemDen</div></div>
+                <div><div class="nhan">Cất cánh</div><div class="gia-tri">@Model.GioCatCanh.ToString("HH:mm dd/MM/yyyy")</div></div>
+                <div><div class="nhan">Chặng dừng</div><div class="gia-tri">@(Model.ChangDungs.Count == 0 ? "Bay thẳng" : Model.ChangDungs.Count + " chặng")</div></div>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap">
+                @if (coVe)
+                {
+                    @if (Model.MoDatVe)
+                    {
+                        <form asp-action="BatTatDatVe" asp-route-id="@Model.Id" method="post" class="m-0">
+                            <button type="submit" class="btn btn-vang">Đóng đặt vé cho chuyến này</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="a-nhan xam align-self-center">Chuyến đã đóng đặt vé</span>
+                    }
+                }
+                else
+                {
+                    <form asp-action="Delete" method="post" class="m-0">
+                        <input type="hidden" asp-for="Id" />
+                        <button type="submit" class="btn btn-danger">🗑 Xoá chuyến bay</button>
+                    </form>
+                }
+                <a asp-action="Index" class="btn btn-light">Quay lại</a>
+            </div>
+        </div>
+    </div>
+</div>

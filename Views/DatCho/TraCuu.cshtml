@@ -1,0 +1,319 @@
+﻿@{
+    ViewData["Title"] = "Tra cứu đặt chỗ";
+    var daDangNhap = User.Identity?.IsAuthenticated == true;
+}
+
+<style>
+    .khung-tra-cuu {
+        background: #fff;
+        border: 1px solid var(--vien);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 14px 36px rgba(10, 37, 87, 0.12);
+        max-width: 1040px;
+        margin: 0 auto;
+    }
+
+    /* ===== NỬA TRÁI ===== */
+    .ben-trai {
+        background: radial-gradient(ellipse at 100% 0%, rgba(255, 214, 102, 0.28), transparent 50%), linear-gradient(165deg, #0a2557 0%, #13509f 100%);
+        color: #fff;
+        padding: 36px 32px;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+    }
+
+        .ben-trai h1 {
+            font-weight: 800;
+            font-size: clamp(1.6rem, 3vw, 2.1rem);
+            margin: 0;
+            text-wrap: balance;
+        }
+
+        .ben-trai .phu {
+            color: #c9d6ea;
+            margin: 6px 0 0;
+        }
+
+    .viec-lam {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 12px;
+    }
+
+        .viec-lam li {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .viec-lam .icon {
+            flex: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.12);
+            display: grid;
+            place-items: center;
+        }
+
+        .viec-lam b {
+            display: block;
+        }
+
+        .viec-lam small {
+            color: #c9d6ea;
+        }
+
+    /* Vé mẫu chỉ chỗ có mã đặt chỗ */
+    .ve-mau {
+        margin-top: auto;
+        background: #fff;
+        color: var(--chu);
+        border-radius: 14px;
+        padding: 14px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        position: relative;
+    }
+
+        .ve-mau::before,
+        .ve-mau::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #13509f;
+            transform: translateY(-50%);
+        }
+
+        .ve-mau::before {
+            left: -9px;
+        }
+
+        .ve-mau::after {
+            right: -9px;
+        }
+
+        .ve-mau .nhan {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--xam);
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+        }
+
+        .ve-mau .tuyen {
+            font-weight: 800;
+            color: var(--xanh-dam);
+        }
+
+        .ve-mau .ma-mau {
+            font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: 3px;
+            padding: 2px 8px;
+            border-radius: 8px;
+            outline: 2px dashed var(--vang);
+            outline-offset: 3px;
+        }
+
+    .chu-thich-ma {
+        color: #ffd24d;
+        font-size: 0.82rem;
+        text-align: right;
+        margin-top: -12px;
+    }
+
+    /* ===== NỬA PHẢI ===== */
+    .ben-phai {
+        padding: 36px 36px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+        .ben-phai h2 {
+            font-weight: 800;
+            font-size: 1.35rem;
+            margin-bottom: 4px;
+        }
+
+        .ben-phai .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #4a5768;
+        }
+
+    .o-ma {
+        height: 62px;
+        border-radius: 12px;
+        font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: 8px;
+        text-align: center;
+        text-transform: uppercase;
+        color: var(--xanh-dam);
+    }
+
+        .o-ma::placeholder {
+            color: #c3cbd6;
+            letter-spacing: 8px;
+        }
+
+    .o-email {
+        height: 50px;
+        border-radius: 12px;
+    }
+
+        .o-ma:focus,
+        .o-email:focus {
+            border-color: var(--xanh);
+            box-shadow: 0 0 0 3px rgba(11, 92, 173, 0.15);
+        }
+
+    .nut-tra-cuu {
+        height: 52px;
+        border-radius: 12px;
+        background: var(--vang);
+        color: #0a3f80;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        border: none;
+    }
+
+        .nut-tra-cuu:hover {
+            background: #ffb300;
+            color: #0a3f80;
+        }
+
+    .goi-y-tai-khoan {
+        margin-top: 22px;
+        padding-top: 18px;
+        border-top: 1px dashed var(--vien);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        font-size: 0.92rem;
+    }
+
+    @@media (max-width: 991.98px) {
+        .ben-trai, .ben-phai {
+            padding: 28px 22px;
+        }
+
+        .ve-mau {
+            margin-top: 8px;
+        }
+    }
+</style>
+
+<section class="khung-tra-cuu">
+    <div class="row g-0">
+        <!-- ===== NỬA TRÁI: GIỚI THIỆU ===== -->
+        <div class="col-lg-5 ben-trai">
+            <div>
+                <h1>Quản lý đặt chỗ</h1>
+                <p class="phu">Không cần đăng nhập. Chỉ cần mã đặt chỗ và email lúc đặt vé.</p>
+            </div>
+
+            <ul class="viec-lam">
+                <li>
+                    <span class="icon" aria-hidden="true">🎫</span>
+                    <div><b>Xem lại vé</b><small>Hành khách, chuyến bay, giờ cất cánh</small></div>
+                </li>
+                <li>
+                    <span class="icon" aria-hidden="true">✅</span>
+                    <div><b>Kiểm tra trạng thái</b><small>Chờ xác nhận, đã xác nhận hay đã huỷ</small></div>
+                </li>
+                <li>
+                    <span class="icon" aria-hidden="true">↩</span>
+                    <div><b>Huỷ vé</b><small>Miễn phí nếu trước giờ bay ít nhất 24 giờ</small></div>
+                </li>
+            </ul>
+
+            <div class="ve-mau" aria-hidden="true">
+                <div>
+                    <div class="nhan">Chuyến bay</div>
+                    <div class="tuyen">SGN ✈ HAN</div>
+                </div>
+                <div class="text-end">
+                    <div class="nhan">Mã đặt chỗ</div>
+                    <div class="ma-mau">7NAD4S</div>
+                </div>
+            </div>
+            <div class="chu-thich-ma">↑ Mã 6 ký tự nằm ở đây, trên trang xác nhận và trong "Vé của tôi"</div>
+        </div>
+
+        <!-- ===== NỬA PHẢI: FORM ===== -->
+        <div class="col-lg-7 ben-phai">
+            <h2>Tra cứu vé của bạn</h2>
+            <p class="text-muted mb-4">Nhập đúng mã đặt chỗ và email đã dùng khi đặt vé.</p>
+
+            @if (ViewBag.Loi != null)
+            {
+                <div class="alert alert-danger d-flex gap-2 align-items-start" role="alert">
+                    <span aria-hidden="true">⚠</span>
+                    <span>@ViewBag.Loi</span>
+                </div>
+            }
+
+            <form asp-action="TraCuu" method="post">
+                <div class="mb-3">
+                    <label class="form-label" for="maDatCho">Mã đặt chỗ</label>
+                    <input class="form-control o-ma" id="maDatCho" name="maDatCho"
+                           maxlength="6" placeholder="••••••" autocomplete="off"
+                           value="@ViewBag.MaDatCho" required />
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label" for="email">Email</label>
+                    <input class="form-control o-email" id="email" name="email" type="email"
+                           placeholder="ban@email.com" value="@ViewBag.Email" required />
+                </div>
+
+                <button type="submit" class="btn nut-tra-cuu w-100">Tra cứu</button>
+            </form>
+
+            <div class="goi-y-tai-khoan">
+                @if (daDangNhap)
+                {
+                    <span class="text-muted">Bạn đang đăng nhập, có thể xem tất cả vé cùng lúc.</span>
+                    <a asp-action="VeCuaToi" class="btn btn-outline-primary btn-sm">🎫 Xem vé của tôi</a>
+                }
+                else
+                {
+                    <span class="text-muted">Có tài khoản? Đăng nhập để xem tất cả vé đã đặt.</span>
+                    <a asp-controller="TaiKhoan" asp-action="DangNhap" class="btn btn-outline-primary btn-sm">👤 Đăng nhập</a>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // Tự đổi mã đặt chỗ thành chữ hoa, bỏ khoảng trắng khi gõ
+        (function () {
+            var o = document.getElementById('maDatCho');
+            if (!o) return;
+            o.addEventListener('input', function () {
+                var viTri = o.selectionStart;
+                o.value = o.value.toUpperCase().replace(/\s/g, '');
+                o.setSelectionRange(viTri, viTri);
+            });
+        })();
+    </script>
+}

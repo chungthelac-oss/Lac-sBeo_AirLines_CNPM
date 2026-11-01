@@ -1,0 +1,36 @@
+﻿@model DatVeMayBay.Models.ThanhPho
+@{
+    ViewData["Title"] = "Sửa thành phố " + Model.Ten;
+}
+
+<a asp-action="Index" class="a-quay-lai">← Danh sách thành phố</a>
+<div class="a-dau">
+    <div>
+        <h1>Sửa thành phố</h1>
+        <p>@Model.Ten</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6">
+        <form asp-action="Edit" method="post" class="a-the a-form">
+            <div asp-validation-summary="ModelOnly" class="a-form-loi"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="mb-4">
+                <label asp-for="Ten" class="form-label"></label>
+                <input asp-for="Ten" class="form-control" />
+                <span asp-validation-for="Ten" class="text-danger small"></span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-vang">Lưu thay đổi</button>
+                <a asp-action="Index" class="btn btn-light">Huỷ</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
